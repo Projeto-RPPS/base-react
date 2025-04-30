@@ -1,25 +1,25 @@
-// HeaderGov.jsx
-import React, { useEffect, useState } from "react";
-import FormularioContribuinte from "../forms/FormularioContribuinte";
+import React, { useEffect, useState } from "react"; // Formulário para empréstimos
 import Header from "./Header";
 import Footer from "./Footer";
 import NavigationRoutes from "./NavigationRoutes";
-import contribuinteService from "../service/contribuinteService";
+import emprestimoService from "../service/emprestimoService";  // Serviço de empréstimos
 
 export default function HeaderGov() {
-  const [contribuintes, setContribuintes] = useState([]);
+  const [emprestimos, setEmprestimos] = useState([]);  // Estado para armazenar a lista de empréstimos
 
   useEffect(() => {
-    contribuinteService.listarContribuintes()
+    // Alterando a chamada para o serviço de empréstimos
+    emprestimoService.listarEmprestimos()
       .then(response => {
-        setContribuintes(response.data);
+        setEmprestimos(response.data);  // Armazenando a lista de empréstimos
       })
       .catch(error => {
-        console.error("Erro ao buscar contribuintes:", error);
+        console.error("Erro ao buscar empréstimos:", error);
       });
   }, []);
 
-  console.log(contribuintes);
+  console.log(emprestimos);  // Para depuração
+
   return (
     <>
       <div className="template-base">
@@ -38,15 +38,20 @@ export default function HeaderGov() {
                   <h5>Título h5</h5>
                   <h6>Título h6</h6>
 
-                  {/* Aqui mostramos os dados vindos da API */}
-                  <h5>Lista de Contribuintes:</h5>
+                  <h5>Lista de Empréstimos:</h5>
                   <ul>
-                    {contribuintes.map((c) => (
-                      <li key={c.idContribuinte}>{c.nomeCivil}</li>
+                    {emprestimos.map((e) => (
+                      <li key={e.idEmprestimo}>
+                        <strong>ID:</strong> {e.idEmprestimo}<br />
+                        <strong>Status:</strong> {e.status}<br />
+                        <strong>Valor Total:</strong> R$ {e.valorTotal}<br />
+                        <strong>Valor da Parcela:</strong> R$ {e.valorParcela}<br />
+                        <strong>Quantidade de Parcelas:</strong> {e.quantidadeParcelas}<br />
+                        <strong>Data de Início:</strong> {new Date(e.dataInicio).toLocaleDateString()}<br />
+                        <strong>Status Financeiro:</strong> {e.statusFinanceiro}
+                      </li>
                     ))}
                   </ul>
-
-                  <FormularioContribuinte />
                 </div>
               </div>
             </div>
