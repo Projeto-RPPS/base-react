@@ -1,8 +1,8 @@
-import HeaderGov from './components/Corpo'
+import ContribuintePage from './Pages/ContribuintePage'
 
 function App() {
   return (
-      <HeaderGov />
+      <ContribuintePage />
   )
 }
 

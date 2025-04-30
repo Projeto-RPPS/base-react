@@ -1,12 +1,12 @@
 // HeaderGov.jsx
 import React, { useEffect, useState } from "react";
 import FormularioContribuinte from "../forms/FormularioContribuinte";
-import Header from "./Header";
-import Footer from "./Footer";
-import NavigationRoutes from "./NavigationRoutes";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import NavigationRoutes from "../components/NavigationRoutes";
 import contribuinteService from "../service/contribuinteService";
 
-export default function HeaderGov() {
+export default function ContribuintePage() {
   const [contribuintes, setContribuintes] = useState([]);
 
   useEffect(() => {
@@ -27,6 +27,7 @@ export default function HeaderGov() {
         <main className="d-flex flex-fill mb-5" id="main">
           <div className="container-fluid d-flex">
             <div className="row">
+                
               <div className="col mb-5">
                 <NavigationRoutes />
                 <div className="main-content pl-sm-3 mt-4" id="main-content">
@@ -55,7 +56,6 @@ export default function HeaderGov() {
         <Footer />
         <div className="br-cookiebar default d-none" tabIndex="-1"></div>
       </div>
-      <script src="../../../core-init.js"></script>
     </>
   );
 }
