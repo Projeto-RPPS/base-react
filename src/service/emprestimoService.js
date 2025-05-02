@@ -1,13 +1,28 @@
-import axios from "axios";
-
-const API_URL = 'http://192.168.38.13:8085/emprestimos';
-
-const listarEmprestimos = () => {
-    const cpf = '51798139988';  
-    const url = `${API_URL}/${cpf}`;
-    return axios.get(url);
-}
+import api from "./api";
 
 export default {
-    listarEmprestimos
-}
+  // Empréstimos
+    criarEmprestimo: (payload) =>
+    api.post("/emprestimos", payload),
+
+    simularEmprestimo: (payload) =>
+    api.post("/emprestimos/simulacao", payload),
+
+    listarEmprestimosPorCpf: (cpf) =>
+    api.get(`/emprestimos/${cpf}`),
+
+//   pagarParcela: (idEmprestimo, parcelaId) =>
+//     api.post(`/emprestimos/${idEmprestimo}/parcelas/pagar`, { parcelaId }),
+
+//   anteciparParcela: (idEmprestimo, parcelaId) =>
+//     api.post(`/emprestimos/${idEmprestimo}/parcelas/antecipar`, { parcelaId }),
+
+//   listarParcelas: (idEmprestimo) =>
+//     api.get(`/emprestimos/${idEmprestimo}/parcelas`),
+
+//   proximaPendente: (idEmprestimo) =>
+//     api.get(`/emprestimos/${idEmprestimo}/parcelas/proximaPendente`),
+
+    consultarMargem: (cpf) =>
+    api.get(`/emprestimos/margem-consignavel/${cpf}`)
+};
