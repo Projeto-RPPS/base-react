@@ -5,5 +5,5 @@ import LoanList from "./forms/Emprestimo/LoanList";
 import SimulateMargin from "./forms/MargemCosignavel/SimulateMargin";
 
 export default function App() {
-  return <SimulateMargin />;
+  return <LoanList />;
 }

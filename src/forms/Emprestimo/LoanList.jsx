@@ -12,31 +12,77 @@ export default function LoanList() {
   const [emprestimos, setEmprestimos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [fetchedOnce, setFetchedOnce] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");    // danger
+  const [warningMsg, setWarningMsg] = useState(""); // warning (404)
 
   const columns = [
-    { header: "ID", accessor: "idEmprestimo" },
     { header: "Status", accessor: "status" },
     { header: "Valor Total (R$)", accessor: "valorTotal" },
     { header: "Valor da Parcela (R$)", accessor: "valorParcela" },
     { header: "Qtd. Parcelas", accessor: "quantidadeParcelas" },
-    { header: "Data de Início", accessor: "dataInicio" },
     { header: "Status Financeiro", accessor: "statusFinanceiro" },
   ];
 
+  // Máscara dinâmica para CPF
+  const formatCpf = (value) => {
+    const raw = value.replace(/\D/g, "").slice(0, 11);
+    let v = raw;
+    if (raw.length > 9) {
+      v = raw.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+    } else if (raw.length > 6) {
+      v = raw.replace(/(\d{3})(\d{3})(\d{1,3})/, "$1.$2.$3");
+    } else if (raw.length > 3) {
+      v = raw.replace(/(\d{3})(\d{1,3})/, "$1.$2");
+    }
+    return v;
+  };
+
+  const handleCpfChange = (e) => {
+    setCpf(e.target.value);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!cpf.trim()) return;
+    const rawCpf = cpf.replace(/\D/g, "");
+    if (rawCpf.length !== 11) return;
+
+    // limpa estado anterior
+    setFetchedOnce(false);
     setLoading(true);
+    setErrorMsg("");
+    setWarningMsg("");
+    setEmprestimos([]);
+
     try {
-      const res = await emprestimoService.listarEmprestimosPorCpf(cpf);
-      const dadosFormatados = res.data.map((e) => ({
-        ...e,
-        dataInicio: new Date(e.dataInicio).toLocaleDateString("pt-BR"),
+      const res = await emprestimoService.listarEmprestimosPorCpf(rawCpf);
+
+      // warning se retornar array vazio
+      if (Array.isArray(res.data) && res.data.length === 0) {
+        setWarningMsg("Nenhum empréstimo encontrado para o CPF informado.");
+        return;
+      }
+
+      // caso normal: formata e seta empréstimos
+      const dadosFormatados = res.data.map((item) => ({
+        ...item,
+        dataInicio: new Date(item.dataInicio).toLocaleDateString("pt-BR"),
       }));
       setEmprestimos(dadosFormatados);
+
     } catch (err) {
-      console.error("Erro ao buscar empréstimos:", err);
-      setEmprestimos([]);
+      const resp = err.response;
+      const status = resp?.status;
+      const { mensagem, erros } = resp?.data || {};
+
+      if (status === 404 && Array.isArray(erros) && erros.length === 0) {
+        setWarningMsg(
+          mensagem || "Nenhum empréstimo encontrado para o CPF informado."
+        );
+      } else {
+        setErrorMsg(
+          mensagem || "Ocorreu um erro inesperado. Tente novamente mais tarde."
+        );
+      }
     } finally {
       setFetchedOnce(true);
       setLoading(false);
@@ -46,34 +92,31 @@ export default function LoanList() {
   return (
     <>
       <Header />
-
       <main id="main-content" className="container-lg my-5">
         <NavigationRoutes />
 
         <div className="row justify-content-center">
           <div className="col-sm-12 col-md-10 col-lg-8">
             <div className="br-card">
-
               <div className="card-header text-center">
                 <h2 style={{ color: "var(--interactive)" }}>Meus Empréstimos</h2>
               </div>
-
               <div className="card-content p-4">
-                {/* formulário de CPF */}
                 <form
                   onSubmit={handleSubmit}
                   className="row mb-4 align-items-end"
                 >
                   <div className="col-8">
                     <div className="br-input mb-0">
-                      <label htmlFor="cpfBusca">CPF do Contribuinte</label>
+                      <label htmlFor="cpfBusca">CPF</label>
                       <input
                         id="cpfBusca"
                         type="text"
-                        placeholder="00000000000"
+                        inputMode="numeric"
+                        placeholder="000.000.000-00"
                         className="w-100"
-                        value={cpf}
-                        onChange={(e) => setCpf(e.target.value)}
+                        value={formatCpf(cpf)}
+                        onChange={handleCpfChange}
                         disabled={loading}
                       />
                     </div>
@@ -82,7 +125,7 @@ export default function LoanList() {
                     <Button
                       variant="primary"
                       type="submit"
-                      disabled={loading || !cpf.trim()}
+                      disabled={loading || cpf.replace(/\D/g, "").length !== 11}
                       className="block"
                     >
                       {loading ? "Carregando…" : "Buscar"}
@@ -90,23 +133,89 @@ export default function LoanList() {
                   </div>
                 </form>
 
-                {/* exibição da tabela ou mensagem */}
-                {fetchedOnce ? (
-                  emprestimos.length > 0 ? (
-                    <Table
-                      title=""
-                      density="medium"
-                      columns={columns}
-                      data={emprestimos}
-                    />
-                  ) : (
-                    <p className="text-center text-down-01">
-                      Nenhum empréstimo encontrado para o CPF {cpf}.
-                    </p>
-                  )
-                ) : (
+                {/* erro geral → danger */}
+                {errorMsg && (
+                  <div className="br-message danger mb-4">
+                    <div className="icon">
+                      <i
+                        className="fas fa-times-circle fa-lg"
+                        aria-hidden="true"
+                      />
+                    </div>
+                    <div
+                      className="content"
+                      role="alert"
+                      aria-label={errorMsg}
+                    >
+                      <span className="message-title">Erro. </span>
+                      <span className="message-body"> {errorMsg}</span>
+                    </div>
+                    <div className="close">
+                      <button
+                        className="br-button circle small"
+                        type="button"
+                        aria-label="Fechar alerta"
+                        onClick={() => {
+                          setErrorMsg("");
+                          setFetchedOnce(false);
+                          setEmprestimos([]);
+                        }}
+                      >
+                        <i className="fas fa-times" aria-hidden="true" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* nenhum resultado → warning */}
+                {fetchedOnce && !loading && warningMsg && (
+                  <div className="br-message warning mb-4">
+                    <div className="icon">
+                      <i
+                        className="fas fa-exclamation-triangle fa-lg"
+                        aria-hidden="true"
+                      />
+                    </div>
+                    <div
+                      className="content"
+                      role="alert"
+                      aria-label={warningMsg}
+                    >
+                      <span className="message-title">Atenção. </span>
+                      <span className="message-body"> {warningMsg}</span>
+                    </div>
+                    <div className="close">
+                      <button
+                        className="br-button circle small"
+                        type="button"
+                        aria-label="Fechar alerta"
+                        onClick={() => {
+                          setWarningMsg("");
+                          setFetchedOnce(false);
+                          setEmprestimos([]);
+                        }}
+                      >
+                        <i className="fas fa-times" aria-hidden="true" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* tabela de resultados */}
+                {fetchedOnce && !loading && !errorMsg && !warningMsg && (
+                  <Table
+                    title=""
+                    density="medium"
+                    columns={columns}
+                    data={emprestimos}
+                  />
+                )}
+
+                {/* instrução inicial */}
+                {!fetchedOnce && !errorMsg && !warningMsg && (
                   <p className="text-center text-down-01">
-                    Informe um CPF e clique em Buscar para ver seus empréstimos.
+                    Informe um CPF válido e clique em Buscar para ver seus
+                    empréstimos.
                   </p>
                 )}
               </div>
@@ -114,7 +223,6 @@ export default function LoanList() {
           </div>
         </div>
       </main>
-
       <Footer />
     </>
   );
