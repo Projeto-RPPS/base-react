@@ -1,10 +1,15 @@
+import React from 'react'
 import ContribuintePage from './Pages/ContribuintePage'
 import CategoriaPage from './Pages/CategoriaPage'
+import LoanList from './forms/emprestimoApi/emprestimo/LoanList'
 
-function App() {
+export default function App() {
   return (
+    <>
       <CategoriaPage />
+      <ContribuintePage />
+      <LoanList />
+    </>
   )
 }
 
-export default App
