@@ -1,11 +1,11 @@
 // src/pages/LoanList.jsx
 import React, { useState } from "react";
-import Header from "../../components/Header";
-import NavigationRoutes from "../../components/NavigationRoutes";
-import Footer from "../../components/Footer";
-import Table from "../../components/Table";
-import Button from "../../components/Button";
-import emprestimoService from "../../service/emprestimoService";
+import Header from "../../../components/global/Header";
+import NavigationRoutes from "../../../components/global/NavigationRoutes";
+import Footer from "../../../components/global/Footer";
+import Table from "../../../components/global/Table";
+import Button from "../../../components/global/Button";
+import emprestimoService from "../../../service/emprestimo/emprestimoService";
 
 export default function LoanList() {
   const [cpf, setCpf] = useState("");

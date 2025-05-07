@@ -1,11 +1,11 @@
 // src/pages/SimulateLoan.jsx
 import React, { useState, useMemo } from "react";
-import Header from "../../components/Header";
-import NavigationRoutes from "../../components/NavigationRoutes";
-import Footer from "../../components/Footer";
-import Input from "../../components/Input";
-import Button from "../../components/Button";
-import emprestimoService from "../../service/emprestimoService";
+import Header from "../../../components/global/Header";
+import NavigationRoutes from "../../../components/global/NavigationRoutes";
+import Footer from "../../../components/global/Footer";
+import Input from "../../../components/global/Input";
+import Button from "../../../components/global/Button";
+import emprestimoService from "../../../service/emprestimo/emprestimoService";
 
 export default function SimulateLoan() {
   const [cpf, setCpf] = useState("");
