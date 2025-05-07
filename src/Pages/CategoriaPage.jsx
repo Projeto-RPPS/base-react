@@ -4,10 +4,13 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import NavigationRoutes from "../components/NavigationRoutes";
 import SecondaryButton from "../components/SecondaryButton";
+import FormularioCategoria from "../forms/FormularioCategoria";
+import EditCategoria from "../forms/EditCategoria";
 
-export default function ContribuintePage() {
+export default function CategoriaPage() {
   const [showForm, setShowForm] = useState(false);
   const [showButton, setShowButton] = useState(true);
+  const [showEdit, setShowEdit] = useState(false);
 
   const handleCadastrarClick = () => {
     setShowForm(true);
@@ -17,18 +20,20 @@ export default function ContribuintePage() {
   const handlePesquisarClick = () => {
     setShowForm(false);
     setShowButton(false);
+    setShowEdit(true);
     // Lógica de pesquisa aqui (se necessário)
   };
 
   const handleRefreshPage = () => {
     setShowForm(false);
+    setShowEdit(false);
     setShowButton(true);
     // Lógica de pesquisa aqui (se necessário)
   };
    return (
     <>
       <div className="template-base">
-        <Header titulo={"RPPS"} subtitulo={"Contribuintes"}/>
+        <Header titulo={"RPPS"} subtitulo={"Categorias"}/>
         <main className="d-flex flex-fill mb-5" id="main">
           <div className="container-fluid d-flex">
             <div className="row">
@@ -36,31 +41,41 @@ export default function ContribuintePage() {
                 <NavigationRoutes />
                 <div className="main-content pl-sm-3 mt-4" id="main-content">
                 {showButton && (
-                  <><h1>Sobre os Contribuintes</h1><div className="col mb-3">
+                  <><h1>Categorias</h1><div className="col mb-3">
                        <SecondaryButton
-                         label={"Cadastrar novo Contribuinte"}
+                         label={"Cadastrar nova Categoria"}
                          onClick={handleCadastrarClick} />
                        <SecondaryButton
-                         label={"Pesquisar Contribuinte pelo CPF"}
+                         label={"Editar Categorias"}
                          onClick={handlePesquisarClick} />
                      </div></>)}
-                  
+
+                   {showEdit && (
+                      
+                <><h1>Editar Categoria</h1>
+                <EditCategoria editFormInitial={{
+                    idCategoria: "",
+                    nomeCategoria: "",
+                    percentualContribuicaoAntesDeSalvar: "",
+                    percentualContribuicao: ""
+                }} />
+                <br></br>
+                <SecondaryButton
+                    label={"Voltar ao menu de Categorias"}
+                    onClick={handleRefreshPage} /></>  
+                  )}
+
                   {showForm && (
-                        <><h1>Cadastrar Contribuinte</h1><FormularioContribuinte formDataInitial={{
-                       nomeCivil: "",
-                       nomeSocial: "",
-                       cpf: "",
-                       idCategoria: "",
-                       listaEmails: [{ email: "" }],
-                       listaEnderecos: [{ cep: "", numeroMoradia: "", estado: "" }],
-                       listaTelefones: [{ numeroTelefone: "", tipoTelefone: "" }],
-                       listaParentes: [{ nomeParente: "", cpfParente: "", idTipoParentesco: "" }],
-                     }} />
-                     <br></br>
-                         <SecondaryButton
-                           label={"Voltar ao menu de contribuintes"}
-                           onClick={handleRefreshPage} />
-                      </>
+                      
+                <><h1>Cadastrar Categoria</h1>
+                <FormularioCategoria formIncial={{
+                    nomeCategoria: "",
+                    percentualContribuicao: ""
+                }} />
+                <br></br>
+                <SecondaryButton
+                    label={"Voltar ao menu de Categorias"}
+                    onClick={handleRefreshPage} /></>  
                   )}
                 </div>
               </div>

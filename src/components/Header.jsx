@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function Header() {
+export default function Header({titulo, subtitulo}) {
     return(
         <><nav className="br-skiplink" role="menubar"><a className="br-item" href="#main-content" role="menuitem" accessKey="1">Ir para o conteúdo <span aria-hidden="true">(1/4)</span> <span aria-hidden="true" className="br-tag text ml-1">1</span></a><a className="br-item" href="#header-navigation" role="menuitem" accessKey="2">Ir para o menu <span aria-hidden="true">(2/4)</span> <span aria-hidden="true" className="br-tag text ml-1">2</span></a><a className="br-item" href="#main-searchbox" role="menuitem" accessKey="3">Ir para a busca <span aria-hidden="true">(3/4)</span> <span aria-hidden="true" className="br-tag text ml-1">3</span></a><a className="br-item" href="#footer" role="menuitem" accessKey="4">Ir para o rodapé <span aria-hidden="true">(4/4)</span> <span aria-hidden="true" className="br-tag text ml-1">4</span></a>
         </nav><header className="br-header mb-4" id="header" data-sticky="data-sticky">
@@ -64,8 +64,8 @@ export default function Header() {
                                 </button>
                             </div>
                             <div className="header-info">
-                                <div className="header-title">Template básico</div>
-                                <div className="header-subtitle">Subtítulo do Header</div>
+                                <div className="header-title">{titulo}</div>
+                                <div className="header-subtitle">{subtitulo}</div>
                             </div>
                         </div>
                         <div className="header-search" id="main-searchbox">

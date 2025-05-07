@@ -1,16 +1,18 @@
 import React, { useState } from "react";
-import Input from "../components/Input"; // Componente customizado para os campos de entrada
+import Input from "../components/Input";
+import SecondaryButton from "../components/SecondaryButton";
+import SelectTipoParentesco from "../components/selects/SelectTipoParentesco";
+import SelectCategoria from "../components/selects/SelectCategoria";
+import contribuinteService from "../service/contribuinteService";
+import SelectEstado from "../components/selects/SelectEstado";
+import SelectTipoTelefone from "../components/selects/SelectTipoTelefone";
+import AlertaErro from "../components/messageComponents/AlertaErro";
+import SuccessMessage from "../components/messageComponents/SuccessMessage";
 
-const FormularioContribuinte = () => {
-  const [formData, setFormData] = useState({
-    nomeCivil: "",
-    nomeSocial: "",
-    cpf: "",
-    listaEmails: [{ email: "" }],
-    listaEnderecos: [{ cep: "", numeroMoradia: "", estado: "" }],
-    listaTelefones: [{ numeroTelefone: "", tipoTelefone: "" }],
-    listaParentes: [{ nomeParente: "", cpfParente: "", idTipoParentesco: "" }],
-  });
+const FormularioContribuinte = ({formDataInitial}) => {
+  const [erro, setErro] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(false);
+  const [formData, setFormData] = useState(formDataInitial);
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -22,7 +24,6 @@ const FormularioContribuinte = () => {
 
   // Para adicionar novos campos de email, endereço, telefone ou parente
   const handleAddField = (field) => {
-    // Inicializamos os campos vazios com base no tipo de lista
     let emptyObject = {};
     
     switch(field) {
@@ -78,28 +79,28 @@ const FormularioContribuinte = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
+  
     // Estrutura final do JSON a ser enviado
     const jsonFinal = {
       contribuinte: {
         nomeCivil: formData.nomeCivil,
         nomeSocial: formData.nomeSocial,
         cpf: formData.cpf,
-        ativo: true, // ou conforme o estado do componente
-        idCategoria: 9007199254740991, // valor fixo ou variável, conforme necessidade
+        ativo: true,
+        idCategoria: Number(formData.idCategoria), // Parse para número
       },
       listaEmails: formData.listaEmails.map((email) => ({
-        idContribuinte: 9007199254740991,
+        idContribuinte: Number.MAX_SAFE_INTEGER, // Usando o maior número seguro
         email: email.email,
       })),
       listaEnderecos: formData.listaEnderecos.map((endereco) => ({
-        idContribuinte: 9007199254740991,
+        idContribuinte: Number.MAX_SAFE_INTEGER,
         cep: endereco.cep,
         numeroMoradia: endereco.numeroMoradia,
         estado: endereco.estado,
       })),
       listaTelefones: formData.listaTelefones.map((telefone) => ({
-        idContribuinte: 9007199254740991,
+        idContribuinte: Number.MAX_SAFE_INTEGER,
         numeroTelefone: telefone.numeroTelefone,
         tipoTelefone: telefone.tipoTelefone,
       })),
@@ -108,242 +109,431 @@ const FormularioContribuinte = () => {
           nomeParente: parente.nomeParente,
           cpfParente: parente.cpfParente,
         },
-        idTipoParentesco: parente.idTipoParentesco,
+        idTipoParentesco: Number(parente.idTipoParentesco), // Parse para número
       })),
     };
-
+  
     console.log(JSON.stringify(jsonFinal, null, 2));
-    // Aqui você pode enviar os dados para a API
-  };
+    contribuinteService.cadastrarContribuintes(jsonFinal)
+    .then(response => {
+      console.log("Contribuinte cadastrado com sucesso:", response.data);
+      setErro(null);
+      setSuccessMessage(true); // Ativa a mensagem de sucesso
+      setFormData(formDataInitial); // Reseta o formulário
+    })
+    .catch(error => {
+      setErro(error);
+      setSuccessMessage(false);
+    });
+};
+      const formatCPF = (cpf) => {
+        return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+      };
+
+      const formatCEP = (cep) => {
+        return cep.replace(/(\d{5})(\d{3})/, '$1-$2');
+      };
+
+      const formatPhone = (phone) => {
+        return phone.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+      };
+
+      const isFormValid = () => {
+        // Valida nome civil (obrigatório, pode conter espaços)
+        if (!formData.nomeCivil || formData.nomeCivil.trim() === "") {
+          return false;
+        }
+      
+        // Valida CPF (exatamente 11 dígitos)
+        if (!formData.cpf || formData.cpf.replace(/\D/g, '').length !== 11) {
+          return false;
+        }
+      
+        // Valida categoria (obrigatória)
+        if (!formData.idCategoria) {
+          return false;
+        }
+      
+        // Valida email principal (obrigatório e formato válido)
+        if (formData.listaEmails.length === 0 || 
+            !formData.listaEmails[0]?.email?.trim() ||
+            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.listaEmails[0].email)) {
+          return false;
+        }
+      
+        // Valida endereço principal
+        if (formData.listaEnderecos.length === 0) {
+          return false;
+        }
+      
+        const primeiroEndereco = formData.listaEnderecos[0];
+        // Valida CEP (exatamente 8 dígitos)
+        if (!primeiroEndereco?.cep || 
+            primeiroEndereco.cep.replace(/\D/g, '').length !== 8) {
+          return false;
+        }
+      
+        // Valida número da moradia
+        if (!primeiroEndereco?.numeroMoradia?.trim()) {
+          return false;
+        }
+      
+        // Valida estado
+        if (!primeiroEndereco?.estado) {
+          return false;
+        }
+      
+        // Valida telefone principal
+        if (formData.listaTelefones.length === 0) {
+          return false;
+        }
+      
+        const primeiroTelefone = formData.listaTelefones[0];
+        // Valida número de telefone (10 ou 11 dígitos)
+        const telDigits = primeiroTelefone?.numeroTelefone?.replace(/\D/g, '') || '';
+        if (telDigits.length < 11) {
+          return false;
+        }
+      
+        // Valida tipo de telefone
+        if (!primeiroTelefone?.tipoTelefone) {
+          return false;
+        }
+      
+        // Valida parentes
+        for (const parente of formData.listaParentes) {
+          // Valida nome do parente (pode conter espaços)
+          if (!parente?.nomeParente || parente.nomeParente.trim() === "") {
+            return false;
+          }
+      
+          // Valida CPF do parente (exatamente 11 dígitos)
+          if (!parente?.cpfParente || parente.cpfParente.replace(/\D/g, '').length !== 11) {
+            return false;
+          }
+      
+          // Valida tipo de parentesco
+          if (!parente.idTipoParentesco) {
+            return false;
+          }
+        }
+      
+        return true;
+      };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="form-contribuinte">
       <div className="row">
         <div className="col-sm">
-          <fieldset>
-            <legend>Dados do Contribuinte</legend>
-            <div className="row">
-              <Input
-                id="nomeCivil"
-                label="Nome Civil"
-                value={formData.nomeCivil}
-                onChange={handleChange}
-              />
-              <Input
-                id="nomeSocial"
-                label="Nome Social"
-                value={formData.nomeSocial}
-                onChange={handleChange}
-                placeholder="Opcional"
-              />
-              <Input
-                id="cpf"
-                label="CPF"
-                value={formData.cpf}
-                onChange={handleChange}
-                placeholder="Apenas números"
-              />
+          {/* Dados do Contribuinte */}
+          <fieldset className="mb-4">
+            <legend className="h4">Dados do Contribuinte</legend>
+            <div className="row g-3">
+              <div className="col-md-6">
+                <Input
+                  id="nomeCivil"
+                  label="Nome Civil"
+                  value={formData.nomeCivil}
+                  onChange={handleChange}
+                  placeholder="Nome Completo"
+                  required
+                  maxLength={100}
+                />
+                <Input
+                  id="nomeSocial"
+                  label="Nome Social"
+                  value={formData.nomeSocial}
+                  onChange={handleChange}
+                  placeholder="Opcional"
+                  maxLength={100}
+                />
+              </div>
+              <div className="col-md-6">
+                <Input
+                  id="cpf"
+                  label="CPF"
+                  value={formatCPF(formData.cpf)}
+                  onChange={(e) => {
+                    const rawValue = e.target.value.replace(/\D/g, '');
+                    if (rawValue.length <= 11) {
+                      handleChange({
+                        target: {
+                          id: "cpf",
+                          value: rawValue
+                        }
+                      });
+                    }
+                  }}
+                  placeholder="000.000.000-00"
+                  required
+                  maxLength={14}
+                  pattern="\d{3}\.\d{3}\.\d{3}-\d{2}"
+                />
+                <SelectCategoria 
+                  value={formData.idCategoria}
+                  onChange={(e) => handleChange(e)}
+                  required
+                />
+              </div>
             </div>
           </fieldset>
-        </div>
-
-        {/* Adicionando seções de Email, Endereço, Telefone e Parente */}
-        <div className="col-sm">
-          <fieldset>
-            <legend>Emails</legend>
+  
+          {/* Emails */}
+          <fieldset className="mb-4">
+            <legend className="h4">Emails</legend>
             {formData.listaEmails.map((email, index) => (
-              <div key={index} className="row align-items-end">
-                <div className="col">
+              <div key={index} className="row g-3 align-items-end mb-3">
+                <div className="col-md-9">
                   <Input
                     id="email"
                     label={`Email ${index + 1}`}
                     value={email.email || ""}
                     onChange={(e) => handleListChange(e, "listaEmails", index)}
+                    type="email"
+                    required={index === 0}
+                    placeholder="exemplo@dominio.com"
                   />
                 </div>
-                {formData.listaEmails.length > 1 && (
-                  <div className="col-auto mb-3">
-                    <button 
-                      type="button" 
-                      className="br-button secondary small" 
+                <div className="col-md-3">
+                  {formData.listaEmails.length > 1 && (
+                    <SecondaryButton 
+                      label="Remover" 
                       onClick={() => handleRemoveField("listaEmails", index)}
-                    >
-                      Remover
-                    </button>
-                  </div>
-                )}
+                      type="button"
+                      className="w-100"
+                    />
+                  )}
+                </div>
               </div>
             ))}
-            <button 
-              type="button" 
-              className="br-button secondary small" 
-              onClick={() => handleAddField("listaEmails")}
-            >
-              Adicionar Email
-            </button>
+            <div className="col-md-3">
+            <SecondaryButton 
+              label="Adicionar Email" 
+              onClick={() => handleAddField("listaEmails", { email: "" })}
+              type="button"
+            />
+            </div>
           </fieldset>
-
-          <fieldset>
-            <legend>Endereços</legend>
+  
+          {/* Endereços */}
+          <fieldset className="mb-4">
+            <legend className="h4">Endereços</legend>
             {formData.listaEnderecos.map((endereco, index) => (
-              <div key={index}>
-                <div className="row">
-                  <div className="col">
+              <div key={index} className="mb-4">
+                <div className="row g-3">
+                  <div className="col-md-6">
                     <Input
                       id="cep"
                       label={`CEP ${index + 1}`}
-                      value={endereco.cep || ""}
-                      onChange={(e) => handleListChange(e, "listaEnderecos", index)}
+                      value={formatCEP(endereco.cep || "")}
+                      onChange={(e) => {
+                        const rawValue = e.target.value.replace(/\D/g, '');
+                        if (rawValue.length <= 8) {
+                          handleListChange({
+                            target: {
+                              id: "cep",
+                              value: rawValue
+                            }
+                          }, "listaEnderecos", index);
+                        }
+                      }}
+                      required={index === 0}
+                      placeholder="00000-000"
+                      maxLength={9}
                     />
                   </div>
-                  <div className="col">
+                  <div className="col-md-6">
                     <Input
                       id="numeroMoradia"
                       label={`Número ${index + 1}`}
                       value={endereco.numeroMoradia || ""}
                       onChange={(e) => handleListChange(e, "listaEnderecos", index)}
+                      required={index === 0}
+                      maxLength={10}
                     />
                   </div>
-                  <div className="col">
-                    <Input
-                      id="estado"
-                      label={`Estado ${index + 1}`}
-                      value={endereco.estado || ""}
+                  <div className="col-md-4">
+                  <SelectEstado 
+                      value={endereco.estado} 
                       onChange={(e) => handleListChange(e, "listaEnderecos", index)}
+                      required={index === 0} 
                     />
                   </div>
                 </div>
                 {formData.listaEnderecos.length > 1 && (
-                  <div className="row">
-                    <div className="col-auto mb-3">
-                      <button 
-                        type="button" 
-                        className="br-button secondary small" 
-                        onClick={() => handleRemoveField("listaEnderecos", index)}
-                      >
-                        Remover Endereço
-                      </button>
-                    </div>
+                  <div className="col-md-3">
+                    <SecondaryButton 
+                      label="Remover Endereço" 
+                      onClick={() => handleRemoveField("listaEnderecos", index)}
+                      type="button"
+                    />
                   </div>
                 )}
               </div>
             ))}
-            <button 
-              type="button" 
-              className="br-button secondary small" 
-              onClick={() => handleAddField("listaEnderecos")}
-            >
-              Adicionar Endereço
-            </button>
+            <div className="col-md-3">
+            <SecondaryButton 
+              label="Adicionar Endereço" 
+              onClick={() => handleAddField("listaEnderecos", { 
+                cep: "", 
+                numeroMoradia: "", 
+                estado: "" 
+              })}
+              type="button"
+            />
+            </div>
           </fieldset>
-
-          <fieldset>
-            <legend>Telefones</legend>
+  
+          {/* Telefones */}
+          <fieldset className="mb-4">
+            <legend className="h4">Telefones</legend>
             {formData.listaTelefones.map((telefone, index) => (
-              <div key={index}>
-                <div className="row">
-                  <div className="col">
+              <div key={index} className="mb-3">
+                <div className="row g-3">
+                  <div className="col-md-6">
                     <Input
                       id="numeroTelefone"
                       label={`Telefone ${index + 1}`}
-                      value={telefone.numeroTelefone || ""}
-                      onChange={(e) => handleListChange(e, "listaTelefones", index)}
+                      value={formatPhone(telefone.numeroTelefone || "")}
+                      onChange={(e) => {
+                        const rawValue = e.target.value.replace(/\D/g, '');
+                        if (rawValue.length <= 11) {
+                          handleListChange({
+                            target: {
+                              id: "numeroTelefone",
+                              value: rawValue
+                            }
+                          }, "listaTelefones", index);
+                        }
+                      }}
+                      required={index === 0}
+                      placeholder="(00) 00000-0000"
+                      maxLength={15}
                     />
                   </div>
-                  <div className="col">
-                    <Input
-                      id="tipoTelefone"
-                      label={`Tipo ${index + 1}`}
-                      value={telefone.tipoTelefone || ""}
-                      onChange={(e) => handleListChange(e, "listaTelefones", index)}
-                    />
+                  <div className="col-md-6">
+                  <SelectTipoTelefone 
+                    value={telefone.tipoTelefone} 
+                    onChange={(e) => handleListChange(e, "listaTelefones", index)} 
+                    name="tipoTelefone" 
+                  />
                   </div>
                 </div>
                 {formData.listaTelefones.length > 1 && (
-                  <div className="row">
-                    <div className="col-auto mb-3">
-                      <button 
-                        type="button" 
-                        className="br-button secondary small" 
-                        onClick={() => handleRemoveField("listaTelefones", index)}
-                      >
-                        Remover Telefone
-                      </button>
-                    </div>
+                  <div className="col-md-3">
+                    <SecondaryButton 
+                      label="Remover Telefone" 
+                      onClick={() => handleRemoveField("listaTelefones", index)}
+                      type="button"
+                    />
                   </div>
                 )}
               </div>
             ))}
-            <button 
-              type="button" 
-              className="br-button secondary small" 
-              onClick={() => handleAddField("listaTelefones")}
-            >
-              Adicionar Telefone
-            </button>
+            <div className="col-md-3">
+            <SecondaryButton 
+              label="Adicionar Telefone" 
+              onClick={() => handleAddField("listaTelefones", { 
+                numeroTelefone: "", 
+                tipoTelefone: "" 
+              })}
+              type="button"
+            />
+            </div>
           </fieldset>
-
-          <fieldset>
-            <legend>Parentes</legend>
+  
+          {/* Parentes */}
+          <fieldset className="mb-4">
+            <legend className="h4">Parentes</legend>
             {formData.listaParentes.map((parente, index) => (
-              <div key={index}>
-                <div className="row">
-                  <div className="col">
+              <div key={index} className="mb-4 p-3 border rounded">
+                <div className="row g-3">
+                  <div className="col-md-8">
                     <Input
                       id="nomeParente"
                       label={`Nome do Parente ${index + 1}`}
                       value={parente.nomeParente || ""}
                       onChange={(e) => handleListChange(e, "listaParentes", index)}
+                      required
+                      maxLength={100}
                     />
                   </div>
-                </div>
-                <div className="row">
-                  <div className="col">
+                  <div className="col-md-6">
                     <Input
                       id="cpfParente"
                       label={`CPF do Parente ${index + 1}`}
-                      value={parente.cpfParente || ""}
-                      onChange={(e) => handleListChange(e, "listaParentes", index)}
+                      value={formatCPF(parente.cpfParente || "")}
+                      onChange={(e) => {
+                        const rawValue = e.target.value.replace(/\D/g, '');
+                        if (rawValue.length <= 11) {
+                          handleListChange({
+                            target: {
+                              id: "cpfParente",
+                              value: rawValue
+                            }
+                          }, "listaParentes", index);
+                        }
+                      }}
+                      required
+                      placeholder="000.000.000-00"
+                      maxLength={14}
                     />
                   </div>
-                  <div className="col">
-                    <Input
-                      id="idTipoParentesco"
-                      label={`Tipo de Parentesco ${index + 1}`}
-                      value={parente.idTipoParentesco || ""}
+                  <div className="col-md-3">
+                    <SelectTipoParentesco 
+                      key={index}
+                      name={`parentesco-${index}`}
+                      value={parente.idTipoParentesco}
                       onChange={(e) => handleListChange(e, "listaParentes", index)}
+                      required
                     />
                   </div>
                 </div>
                 {formData.listaParentes.length > 1 && (
-                  <div className="row">
-                    <div className="col-auto mb-3">
-                      <button 
-                        type="button" 
-                        className="br-button secondary small" 
-                        onClick={() => handleRemoveField("listaParentes", index)}
-                      >
-                        Remover Parente
-                      </button>
-                    </div>
+                  <div className="col-md-3">
+                    <SecondaryButton 
+                      label="Remover Parente" 
+                      onClick={() => handleRemoveField("listaParentes", index)}
+                      type="button"
+                    />
                   </div>
                 )}
               </div>
             ))}
-            <button 
-              type="button" 
-              className="br-button secondary small" 
-              onClick={() => handleAddField("listaParentes")}
-            >
-              Adicionar Parente
-            </button>
+            <div className="col-md-3">
+            <SecondaryButton 
+              label="Adicionar Parente" 
+              onClick={() => handleAddField("listaParentes", { 
+                nomeParente: "", 
+                cpfParente: "", 
+                idTipoParentesco: "" 
+              })}
+              type="button"
+            />
+            </div>
           </fieldset>
+  
+          <div className="text-end mt-4">
+            {erro && (
+              <AlertaErro nomeClasse="Contribuinte" erro={erro} onClose={() => setErro(null)} />
+            )}
+            <SuccessMessage 
+              show={successMessage}
+              onClose={() => setSuccessMessage(false)}
+              title="Cadastro realizado!"
+              message="O contribuinte foi cadastrado com sucesso."
+            />
+            <button 
+              type="submit" 
+              className={`br-button ${isFormValid() ? 'primary' : 'primary mr-3'}`}
+              disabled={!isFormValid()}
+              aria-disabled={!isFormValid()}
+            >
+              {isFormValid() ? 'Cadastrar Contribuinte' : 'Preencha todos os campos'}
+            </button>
+          </div>
         </div>
       </div>
-
-      <button type="submit" className="br-button primary mt-3">
-        Cadastrar Contribuinte
-      </button>
     </form>
   );
 };

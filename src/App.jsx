@@ -1,8 +1,9 @@
 import ContribuintePage from './Pages/ContribuintePage'
+import CategoriaPage from './Pages/CategoriaPage'
 
 function App() {
   return (
-      <ContribuintePage />
+      <CategoriaPage />
   )
 }
 
