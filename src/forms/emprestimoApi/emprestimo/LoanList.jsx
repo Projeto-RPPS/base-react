@@ -1,4 +1,3 @@
-// src/pages/LoanList.jsx
 import React, { useState } from "react";
 import Header from "../../../components/global/Header";
 import NavigationRoutes from "../../../components/global/NavigationRoutes";
@@ -23,27 +22,28 @@ export default function LoanList() {
     { header: "Status Financeiro", accessor: "statusFinanceiro" },
   ];
 
-  // Máscara dinâmica para CPF
-  const formatCpf = (value) => {
-    const raw = value.replace(/\D/g, "").slice(0, 11);
-    let v = raw;
+  // Formata e limita a entrada do CPF a 11 dígitos enquanto digita
+  function handleCpfChange(e) {
+    let raw = e.target.value.replace(/\D/g, "").slice(0, 11);
+    let formatted = raw;
     if (raw.length > 9) {
-      v = raw.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+      formatted = raw.replace(
+        /(\d{3})(\d{3})(\d{3})(\d{2})/,
+        "$1.$2.$3-$4"
+      );
     } else if (raw.length > 6) {
-      v = raw.replace(/(\d{3})(\d{3})(\d{1,3})/, "$1.$2.$3");
+      formatted = raw.replace(/(\d{3})(\d{3})(\d{1,3})/, "$1.$2.$3");
     } else if (raw.length > 3) {
-      v = raw.replace(/(\d{3})(\d{1,3})/, "$1.$2");
+      formatted = raw.replace(/(\d{3})(\d{1,3})/, "$1.$2");
     }
-    return v;
-  };
+    setCpf(formatted);
+  }
 
-  const handleCpfChange = (e) => {
-    setCpf(e.target.value);
-  };
+  // Extrai apenas os dígitos para validação/enviá-los à API
+  const rawCpf = cpf.replace(/\D/g, "");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const rawCpf = cpf.replace(/\D/g, "");
     if (rawCpf.length !== 11) return;
 
     // limpa estado anterior
@@ -68,7 +68,6 @@ export default function LoanList() {
         dataInicio: new Date(item.dataInicio).toLocaleDateString("pt-BR"),
       }));
       setEmprestimos(dadosFormatados);
-
     } catch (err) {
       const resp = err.response;
       const status = resp?.status;
@@ -102,10 +101,7 @@ export default function LoanList() {
                 <h2 style={{ color: "var(--interactive)" }}>Meus Empréstimos</h2>
               </div>
               <div className="card-content p-4">
-                <form
-                  onSubmit={handleSubmit}
-                  className="row mb-4 align-items-end"
-                >
+                <form onSubmit={handleSubmit} className="row mb-4 align-items-end">
                   <div className="col-8">
                     <div className="br-input mb-0">
                       <label htmlFor="cpfBusca">CPF</label>
@@ -115,7 +111,7 @@ export default function LoanList() {
                         inputMode="numeric"
                         placeholder="000.000.000-00"
                         className="w-100"
-                        value={formatCpf(cpf)}
+                        value={cpf}
                         onChange={handleCpfChange}
                         disabled={loading}
                       />
@@ -125,7 +121,7 @@ export default function LoanList() {
                     <Button
                       variant="primary"
                       type="submit"
-                      disabled={loading || cpf.replace(/\D/g, "").length !== 11}
+                      disabled={loading || rawCpf.length !== 11}
                       className="block"
                     >
                       {loading ? "Carregando…" : "Buscar"}
@@ -137,17 +133,10 @@ export default function LoanList() {
                 {errorMsg && (
                   <div className="br-message danger mb-4">
                     <div className="icon">
-                      <i
-                        className="fas fa-times-circle fa-lg"
-                        aria-hidden="true"
-                      />
+                      <i className="fas fa-times-circle fa-lg" aria-hidden="true" />
                     </div>
-                    <div
-                      className="content"
-                      role="alert"
-                      aria-label={errorMsg}
-                    >
-                      <span className="message-title">Erro. </span>
+                    <div className="content" role="alert" aria-label={errorMsg}>
+                      <span className="message-title">Erro.</span>
                       <span className="message-body"> {errorMsg}</span>
                     </div>
                     <div className="close">
@@ -171,17 +160,10 @@ export default function LoanList() {
                 {fetchedOnce && !loading && warningMsg && (
                   <div className="br-message warning mb-4">
                     <div className="icon">
-                      <i
-                        className="fas fa-exclamation-triangle fa-lg"
-                        aria-hidden="true"
-                      />
+                      <i className="fas fa-exclamation-triangle fa-lg" aria-hidden="true" />
                     </div>
-                    <div
-                      className="content"
-                      role="alert"
-                      aria-label={warningMsg}
-                    >
-                      <span className="message-title">Atenção. </span>
+                    <div className="content" role="alert" aria-label={warningMsg}>
+                      <span className="message-title">Atenção.</span>
                       <span className="message-body"> {warningMsg}</span>
                     </div>
                     <div className="close">
@@ -214,8 +196,7 @@ export default function LoanList() {
                 {/* instrução inicial */}
                 {!fetchedOnce && !errorMsg && !warningMsg && (
                   <p className="text-center text-down-01">
-                    Informe um CPF válido e clique em Buscar para ver seus
-                    empréstimos.
+                    Informe um CPF válido e clique em Buscar para ver seus empréstimos.
                   </p>
                 )}
               </div>
