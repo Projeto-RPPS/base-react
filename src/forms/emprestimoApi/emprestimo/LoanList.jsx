@@ -140,6 +140,7 @@ export default function LoanList() {
                       {loading ? "Carregando…" : "Buscar"}
                     </Button>
                   </div>
+                  
                 </form>
 
                 {errorMsg && (
@@ -293,12 +294,6 @@ export default function LoanList() {
               </table>
             </div>
           </div>
-        )}
-
-        {!fetchedOnce && !errorMsg && !warningMsg && (
-          <p className="text-center text-down-01">
-            Informe um CPF e clique em Buscar para ver seus empréstimos.
-          </p>
         )}
       </main>
       <Footer />
