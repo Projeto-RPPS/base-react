@@ -4,23 +4,28 @@ import Header from "../components/global/Header";
 import Footer from "../components/global/Footer";
 import NavigationRoutes from "../components/global/NavigationRoutes";
 import SecondaryButton from "../components/global/SecundaryButton";
+import ContribuinteData from "../forms/contribuinteApi/ContribuinteData";
 
 export default function ContribuintePage() {
   const [showForm, setShowForm] = useState(false);
+  const [showPesquisar, setShowPesquisar] = useState(false);
   const [showButton, setShowButton] = useState(true);
 
   const handleCadastrarClick = () => {
     setShowForm(true);
+    setShowPesquisar(false);
     setShowButton(false);
   };
 
   const handlePesquisarClick = () => {
+    setShowPesquisar(true);
     setShowForm(false);
     setShowButton(false);
     // Lógica de pesquisa aqui (se necessário)
   };
 
   const handleRefreshPage = () => {
+    setShowPesquisar(false);
     setShowForm(false);
     setShowButton(true);
     // Lógica de pesquisa aqui (se necessário)
@@ -56,6 +61,15 @@ export default function ContribuintePage() {
                        listaTelefones: [{ numeroTelefone: "", tipoTelefone: "" }],
                        listaParentes: [{ nomeParente: "", cpfParente: "", idTipoParentesco: "" }],
                      }} />
+                     <br></br>
+                         <SecondaryButton
+                           label={"Voltar ao menu de contribuintes"}
+                           onClick={handleRefreshPage} />
+                      </>
+                  )}
+
+                  {showPesquisar && (
+                        <><h1>Pesquisar Contribuinte</h1><ContribuinteData />
                      <br></br>
                          <SecondaryButton
                            label={"Voltar ao menu de contribuintes"}

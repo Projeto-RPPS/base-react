@@ -90,7 +90,7 @@ export default function CreateLoan() {
       } else {
         setResultado(data);
       }
-    } catch (err) {
+    } catch {
       // erro genérico → vermelho
       setErrorMsg("Erro ao solicitar empréstimo. Tente novamente mais tarde.");
     } finally {

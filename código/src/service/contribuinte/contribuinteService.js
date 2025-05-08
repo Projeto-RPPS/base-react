@@ -9,7 +9,12 @@ const cadastrarContribuintes = (form) => {
     return axios.post(API_URL, form)
 }
 
+const pesquisarContribuinte = (cpf) => {
+    return axios.get(`${API_URL + "/porCpf/" + cpf}`)
+}
+
 export default {
     listarContribuintes,
-    cadastrarContribuintes
+    cadastrarContribuintes,
+    pesquisarContribuinte
 }
