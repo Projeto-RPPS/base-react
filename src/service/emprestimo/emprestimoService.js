@@ -17,8 +17,8 @@ export default {
 //   anteciparParcela: (idEmprestimo, parcelaId) =>
 //     api.post(`/emprestimos/${idEmprestimo}/parcelas/antecipar`, { parcelaId }),
 
-//   listarParcelas: (idEmprestimo) =>
-//     api.get(`/emprestimos/${idEmprestimo}/parcelas`),
+    listarParcelas: (idEmprestimo) =>
+    api.get(`/emprestimos/${idEmprestimo}/parcelas`),
 
 //   proximaPendente: (idEmprestimo) =>
 //     api.get(`/emprestimos/${idEmprestimo}/parcelas/proximaPendente`),
