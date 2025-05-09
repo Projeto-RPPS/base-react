@@ -98,7 +98,7 @@ export default function SimulateMargin() {
                   className="row mb-4 align-items-end"
                   noValidate
                 >
-                  <div className="col-8">
+                  <div className="col-9">
                     <div className="br-input mb-0">
                       <label htmlFor="cpfContribuinte">
                         CPF
@@ -115,7 +115,7 @@ export default function SimulateMargin() {
                       />
                     </div>
                   </div>
-                  <div className="col-4 d-flex justify-content-end">
+                  <div className="col-3 d-flex justify-content-end">
                     <Button
                       variant="primary"
                       type="submit"
