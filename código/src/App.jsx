@@ -8,6 +8,7 @@ import Header from './components/global/Header'
 import Footer from './components/global/Footer'
 import NavigationRoutes from './components/global/NavigationRoutes'
 import FormularioCategoria from './forms/contribuinteApi/FormularioCategoria'
+import FormularioContribuinte from './forms/contribuinteApi/FormularioContribuinte'
 
 export default function App() {
   return (
@@ -18,10 +19,7 @@ export default function App() {
             <div className="col mb-5">
               <NavigationRoutes />
               <div className="main-content pl-sm-3 mt-4" id="main-content">
-              <FormularioCategoria formIncial={{
-                    nomeCategoria: "",
-                    percentualContribuicao: ""
-                }} />
+              <ContribuinteData />
               </div>
             </div>
         </div>

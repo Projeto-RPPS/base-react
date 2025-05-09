@@ -4,7 +4,7 @@ import contribuinteService from "../../service/contribuinte/contribuinteService"
 import AlertaErro from "../../components/contribuinteComponent/messageComponent/AlertaErro";
 import SuccessMessage from "../../components/contribuinteComponent/messageComponent/SuccesMessage";
 import SecondaryButton from "../../components/global/SecundaryButton";
-import TableArvoreGenealogica from "../../components/contribuinteComponent/tableComponent/TableArvoreGenealogica";
+import ArvoreGenealogica from "../../components/contribuinteComponent/tableComponent/ArvoreGenealogica";
 
 const ContribuinteData = () => {
   const [cpf, setCpf] = useState("");
@@ -14,6 +14,7 @@ const ContribuinteData = () => {
   const [successMessage, setSuccessMessage] = useState(false);
   const [exibirTabela, setExibirTabela] = useState(false);
   const [cpfSalvo, setCpfSalvo] = useState(null);
+  const [clicado, setClicado] = useState(false);
 
   const handleCpfChange = (e) => {
     const value = e.target.value.replace(/\D/g, "").slice(0, 11);
@@ -21,6 +22,7 @@ const ContribuinteData = () => {
   };
 
     const handleClick = (contribuinteCpf) => {
+        setClicado(true);
         if (contribuinteCpf) setExibirTabela(true);
         setCpfSalvo(contribuinteCpf);
     };
@@ -40,6 +42,8 @@ const ContribuinteData = () => {
     contribuinteService
       .pesquisarContribuinte(cpf)
       .then((response) => {
+        setExibirTabela(false)
+        setClicado(false)
         setContribuinte(response.data);
         setSuccessMessage(true);
         setCpf("");
@@ -65,7 +69,7 @@ const ContribuinteData = () => {
         <div className="card-content p-4">
           <div className="br-form">
             <form onSubmit={pesquisarContribuinte} noValidate>
-              <fieldset className="br-fieldset mb-4">
+              <fieldset className="br-fieldset mb-1">
                 <legend>Pesquisar Contribuinte</legend>
                 <Input
                   id="cpf"
@@ -141,9 +145,15 @@ const ContribuinteData = () => {
                                       </div>
                                   </div>
                               </div>
-                              <div className="d-flex justify-content-end">
-                                      <SecondaryButton label={"Gerar Árvore Genealógica"} onClick={() => handleClick(contribuinte.cpf)} />
-                                </div></>
+                              <br></br>
+                              {!clicado && (
+                                <div className="d-flex justify-content-end">
+                                        <div className="col-md-5">
+                                          <SecondaryButton label={"Gerar Árvore Genealógica"} onClick={() => handleClick(contribuinte.cpf)} />
+                                        </div>
+                                  </div>
+                                )}
+                                </>
             )}
 
             {successMessage && contribuinte && (
@@ -170,7 +180,13 @@ const ContribuinteData = () => {
           </div>
         </div>
       </div>
-      <TableArvoreGenealogica cpf={cpfSalvo} exibir={exibirTabela} />
+      {exibirTabela && (
+         <ArvoreGenealogica 
+        cpf={cpfSalvo} 
+        exibir={exibirTabela} 
+        nomeContribuinte={contribuinte?.nomeCivil} 
+        />
+      )}
     </div>
   </div>
   
