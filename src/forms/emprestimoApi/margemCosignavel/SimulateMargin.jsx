@@ -1,8 +1,4 @@
-// src/forms/Margem/SimulateMargin.jsx
-import React, { useState } from "react";
-import Header from "../../../components/global/Header";
-import NavigationRoutes from "../../../components/global/NavigationRoutes";
-import Footer from "../../../components/global/Footer";
+import { useState } from "react";
 import Button from "../../../components/global/Button";
 import Message from "../../../components/global/Message";
 import emprestimoService from "../../../service/emprestimo/emprestimoService";
@@ -80,9 +76,7 @@ export default function SimulateMargin() {
 
   return (
     <>
-      <Header />
       <main id="main-content" className="container-lg my-5">
-        <NavigationRoutes />
 
         <div className="row justify-content-center">
           <div className="col-sm-12 col-md-8 col-lg-6">
@@ -217,7 +211,6 @@ export default function SimulateMargin() {
           </div>
         </div>
       </main>
-      <Footer />
     </>
   );
 }

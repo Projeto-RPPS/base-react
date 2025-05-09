@@ -1,8 +1,4 @@
-// src/pages/LoanList.jsx
 import React, { useState } from "react";
-import Header from "../../../components/global/Header";
-import NavigationRoutes from "../../../components/global/NavigationRoutes";
-import Footer from "../../../components/global/Footer";
 import Button from "../../../components/global/Button";
 import Message from "../../../components/global/Message";
 import emprestimoService from "../../../service/emprestimo/emprestimoService";
@@ -102,11 +98,9 @@ export default function LoanList() {
 
   return (
     <>
-      <Header />
       <main id="main-content" className="container my-5">
-        <NavigationRoutes />
 
-        {/* Card de busca um pouco maior */}
+        {/* Formulário de busca */}
         <div className="row justify-content-center mb-5">
           <div className="col-12 col-md-10 col-lg-6">
             <div className="br-card">
@@ -131,7 +125,7 @@ export default function LoanList() {
                     </div>
                   </div>
                   <div className="col-3 text-right">
-                  <Button
+                    <Button
                       variant="primary"
                       type="submit"
                       disabled={loading || rawCpf.length !== 11}
@@ -140,7 +134,6 @@ export default function LoanList() {
                       {loading ? "Carregando…" : "Buscar"}
                     </Button>
                   </div>
-                  
                 </form>
 
                 {errorMsg && (
@@ -172,7 +165,6 @@ export default function LoanList() {
                   </Message>
                 )}
 
-                {/* Mensagem inicial */}
                 {!fetchedOnce && !errorMsg && !warningMsg && (
                   <p className="text-center text-down-01">
                     Informe um CPF e clique em Buscar para ver seus empréstimos.
@@ -183,127 +175,125 @@ export default function LoanList() {
           </div>
         </div>
 
+        {/* Tabela de resultados */}
         {fetchedOnce && !loading && !errorMsg && !warningMsg && (
           <div className="row justify-content-center">
             <div className="col-12 col-md-10">
-              <table className="br-table">
-                <colgroup>
-                  <col style={{ width: "14%" }} />
-                  <col style={{ width: "14%" }} />
-                  <col style={{ width: "14%" }} />
-                  <col style={{ width: "10%" }} />
-                  <col style={{ width: "14%" }} />
-                  <col style={{ width: "14%" }} />
-                  <col style={{ width: "20%" }} />
-                </colgroup>
-                <thead>
-                  <tr>
-                    <th>Status</th>
-                    <th>Total</th>
-                    <th>Parcela</th>
-                    <th>Quantidade</th>
-                    <th>Financeiro</th>
-                    <th>Início</th>
-                    <th className="text-center">Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {emprestimos.map(loan => (
-                    <React.Fragment key={loan.idEmprestimo}>
-                      <tr>
-                        <td className="align-middle">{loan.status}</td>
-                        <td className="text-right align-middle">
-                          {loan.valorTotal.toLocaleString("pt-BR", {
-                            style: "currency",
-                            currency: "BRL"
-                          })}
-                        </td>
-                        <td className="text-right align-middle">
-                          {loan.valorParcela.toLocaleString("pt-BR", {
-                            style: "currency",
-                            currency: "BRL"
-                          })}
-                        </td>
-                        <td className="text-center align-middle">{loan.quantidadeParcelas}</td>
-                        <td className="text-center align-middle">{loan.statusFinanceiro}</td>
-                        <td className="text-center align-middle">{loan.dataInicio}</td>
-                        <td className="text-center align-middle">
-                          <Button
-                            variant="tertiary"
-                            size="small"
-                            style={{ padding: "0.25rem 0.5rem", fontSize: "0.875rem" }}
-                            onClick={() => toggleParcelas(loan)}
-                          >
-                            {expandedId === loan.idEmprestimo ? "Ocultar" : "Ver Mais"}
-                          </Button>
-                        </td>
-                      </tr>
-
-                      {expandedId === loan.idEmprestimo && (
+              <div className="table-responsive">
+                <table className="br-table">
+                  <colgroup>
+                    <col style={{ width: "14%" }} />
+                    <col style={{ width: "14%" }} />
+                    <col style={{ width: "14%" }} />
+                    <col style={{ width: "14%" }} />
+                    <col style={{ width: "14%" }} />
+                    <col style={{ width: "14%" }} />
+                    <col style={{ width: "14%" }} />
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      <th>Status</th>
+                      <th>Total</th>
+                      <th>Parcela</th>
+                      <th>Quantidade</th>
+                      <th>Financeiro</th>
+                      <th>Início</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {emprestimos.map(loan => (
+                      <React.Fragment key={loan.idEmprestimo}>
                         <tr>
-                          <td colSpan={7} className="p-0">
-                            {erroParcelas && (
-                              <Message
-                                type="danger"
-                                title="Erro."
-                                className="m-3"
-                                onClose={() => setErroParcelas("")}
-                              >
-                                {erroParcelas}
-                              </Message>
-                            )}
-                            {loadingParcelas ? (
-                              <p className="m-3">Carregando parcelas…</p>
-                            ) : (
-                              <div style={{ width: "70%", margin: "1rem auto" }}>
-                                <table className="br-table">
-                                  <colgroup>
-                                    <col style={{ width: "20%" }} />
-                                    <col style={{ width: "20%" }} />
-                                    <col style={{ width: "20%" }} />
-                                    <col style={{ width: "20%" }} />
-                                    <col style={{ width: "20%" }} />
-                                  </colgroup>
-                                  <thead>
-                                    <tr>
-                                      <th className="text-center">N°</th>
-                                      <th className="text-center">Vencimento</th>
-                                      <th className="text-right">Valor</th>
-                                      <th className="text-center">Status</th>
-                                      <th className="text-center">Pago em</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {parcelas.map(p => (
-                                      <tr key={p.numeroParcela}>
-                                        <td className="text-center align-middle">{p.numeroParcela}</td>
-                                        <td className="text-center align-middle">{p.dataVencimento}</td>
-                                        <td className="text-right align-middle">
-                                          {p.valor.toLocaleString("pt-BR", {
-                                            style: "currency",
-                                            currency: "BRL"
-                                          })}
-                                        </td>
-                                        <td className="text-center align-middle">{p.statusPagamento}</td>
-                                        <td className="text-center align-middle">{p.dataPagamento}</td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                              </div>
-                            )}
+                          <td>{loan.status}</td>
+                          <td>{loan.valorTotal.toLocaleString("pt-BR", {
+                            style: "currency",
+                            currency: "BRL"
+                          })}</td>
+                          <td>{loan.valorParcela.toLocaleString("pt-BR", {
+                            style: "currency",
+                            currency: "BRL"
+                          })}</td>
+                          <td>{loan.quantidadeParcelas}</td>
+                          <td>{loan.statusFinanceiro}</td>
+                          <td>{loan.dataInicio}</td>
+                          <td>
+                            <Button
+                              variant="tertiary"
+                              size="small"
+                              style={{ padding: "0.25rem 0.5rem", fontSize: "0.875rem" }}
+                              onClick={() => toggleParcelas(loan)}
+                            >
+                              {expandedId === loan.idEmprestimo ? "Ocultar" : "Ver Mais"}
+                            </Button>
                           </td>
                         </tr>
-                      )}
-                    </React.Fragment>
-                  ))}
-                </tbody>
-              </table>
+
+                        {expandedId === loan.idEmprestimo && (
+                          <tr>
+                            <td colSpan={7} className="p-0">
+                              {erroParcelas && (
+                                <Message
+                                  type="danger"
+                                  title="Erro."
+                                  className="m-3"
+                                  onClose={() => setErroParcelas("")}
+                                >
+                                  {erroParcelas}
+                                </Message>
+                              )}
+                              {loadingParcelas ? (
+                                <p className="m-3">Carregando parcelas…</p>
+                              ) : (
+                                <div style={{ width: "70%", margin: "1rem auto" }}>
+                                  <div className="table-responsive">
+                                    <table className="br-table">
+                                      <colgroup>
+                                        <col style={{ width: "20%" }} />
+                                        <col style={{ width: "20%" }} />
+                                        <col style={{ width: "20%" }} />
+                                        <col style={{ width: "20%" }} />
+                                        <col style={{ width: "20%" }} />
+                                      </colgroup>
+                                      <thead>
+                                        <tr>
+                                          <th>N°</th>
+                                          <th>Vencimento</th>
+                                          <th>Valor</th>
+                                          <th>Status</th>
+                                          <th>Pago em</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {parcelas.map(p => (
+                                          <tr key={p.numeroParcela}>
+                                            <td>{p.numeroParcela}</td>
+                                            <td>{p.dataVencimento}</td>
+                                            <td>{p.valor.toLocaleString("pt-BR", {
+                                              style: "currency",
+                                              currency: "BRL"
+                                            })}</td>
+                                            <td>{p.statusPagamento}</td>
+                                            <td>{p.dataPagamento}</td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                </div>
+                              )}
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}
       </main>
-      <Footer />
     </>
   );
 }

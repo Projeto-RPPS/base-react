@@ -1,8 +1,4 @@
-// src/pages/CreateLoan.jsx
-import React, { useState, useMemo } from "react";
-import Header from "../../../components/global/Header";
-import NavigationRoutes from "../../../components/global/NavigationRoutes";
-import Footer from "../../../components/global/Footer";
+import { useState, useMemo } from "react";
 import Input from "../../../components/global/Input";
 import Button from "../../../components/global/Button";
 import Message from "../../../components/global/Message";
@@ -94,9 +90,7 @@ export default function CreateLoan() {
 
   return (
     <>
-      <Header />
       <main id="main-content" className="container-lg my-5">
-        <NavigationRoutes />
         <div className="row justify-content-center">
           <div className="col-sm-10 col-md-8 col-lg-6">
             <div className="br-card">
@@ -247,7 +241,6 @@ export default function CreateLoan() {
           </div>
         </div>
       </main>
-      <Footer />
     </>
   );
 }
