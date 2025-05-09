@@ -101,7 +101,7 @@ export default function SimulateMargin() {
                   <div className="col-8">
                     <div className="br-input mb-0">
                       <label htmlFor="cpfContribuinte">
-                        CPF do Contribuinte
+                        CPF
                       </label>
                       <input
                         id="cpfContribuinte"
