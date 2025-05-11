@@ -4,8 +4,9 @@ import Header from './components/global/Header';
 import Footer from './components/global/Footer';
 import NavigationRoutes from './components/global/NavigationRoutes';
 
-// Páginas de Benefícios
+
 import BeneficiosPage from './pages/BeneficiosPage';
+import SolicitacaoBeneficioPage from './pages/SolicitacaoBeneficioPage'
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
               <div className="main-content pl-sm-3 mt-4" id="main-content">
                 <Routes>
                   <Route path="/beneficios" element={<BeneficiosPage />} />
+                  <Route path="/solicitacao-beneficios" element={<SolicitacaoBeneficioPage />} /> 
                 </Routes>
               </div>
             </div>
