@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import Button from "../../../components/global/Button";
 import Message from "../../../components/global/Message";
 import emprestimoService from "../../../service/emprestimo/emprestimoService";
+import { useNavigate } from "react-router-dom";
 
 export default function LoanList() {
+  const navigate = useNavigate();
   const [cpf, setCpf] = useState("");
   const [emprestimos, setEmprestimos] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -182,13 +184,14 @@ export default function LoanList() {
               <div className="table-responsive">
                 <table className="br-table">
                   <colgroup>
-                    <col style={{ width: "14%" }} />
-                    <col style={{ width: "14%" }} />
-                    <col style={{ width: "14%" }} />
-                    <col style={{ width: "14%" }} />
-                    <col style={{ width: "14%" }} />
-                    <col style={{ width: "14%" }} />
-                    <col style={{ width: "14%" }} />
+                    <col style={{ width: "12.5%" }} />
+                    <col style={{ width: "12.5%" }} />
+                    <col style={{ width: "12.5%" }} />
+                    <col style={{ width: "12.5%" }} />
+                    <col style={{ width: "12.5%" }} />
+                    <col style={{ width: "12.5%" }} />
+                    <col style={{ width: "12.5%" }} />
+                    <col style={{ width: "12.5%" }} />
                   </colgroup>
                   <thead>
                     <tr>
@@ -199,6 +202,7 @@ export default function LoanList() {
                       <th>Financeiro</th>
                       <th>Início</th>
                       <th>Ações</th>
+                      <th>Fatura</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -227,11 +231,22 @@ export default function LoanList() {
                               {expandedId === loan.idEmprestimo ? "Ocultar" : "Ver Mais"}
                             </Button>
                           </td>
+                           <td className="text-center align-middle">
+                            <Button
+                              variant="tertiary"
+                              size="small"
+                              disabled={loan.statusFinanceiro === "QUITADO"}
+                              onClick={() => navigate(`/fatura/${loan.idEmprestimo}`)}
+                              style={{ padding: "0.25rem 0.5rem", fontSize: "0.875rem" }}
+                            >
+                              Pagar
+                            </Button>
+                          </td>
                         </tr>
 
                         {expandedId === loan.idEmprestimo && (
                           <tr>
-                            <td colSpan={7} className="p-0">
+                            <td colSpan={8} className="p-0">
                               {erroParcelas && (
                                 <Message
                                   type="danger"
