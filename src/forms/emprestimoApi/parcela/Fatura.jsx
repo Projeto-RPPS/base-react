@@ -1,9 +1,9 @@
-// src/pages/Fatura.jsx
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Button from "../../../components/global/Button";
 import Message from "../../../components/global/Message";
 import emprestimoService from "../../../service/emprestimo/emprestimoService";
+import SelectParcelas from "../../../components/emprestimoComponent/SelectParcelas";
 
 export default function Fatura() {
   const { idEmprestimo } = useParams();
@@ -16,8 +16,9 @@ export default function Fatura() {
   const [successMsg, setSuccessMsg] = useState("");
   const [activeTab, setActiveTab] = useState("pagar");
   const [anticipateCount, setAnticipateCount] = useState(1);
+  const [availableCount, setAvailableCount] = useState(0);
 
-  // Busca próxima parcela (ou marca parcela=null)
+  // Busca próxima parcela e conta quantas ainda podem ser antecipadas
   const fetchProxima = async () => {
     setLoading(true);
     try {
@@ -28,6 +29,7 @@ export default function Fatura() {
         typeof resp.data.numeroParcela === "undefined"
       ) {
         setParcela(null);
+        setAvailableCount(0);
       } else {
         const data = resp.data;
         setParcela({
@@ -38,11 +40,20 @@ export default function Fatura() {
             currency: "BRL",
           }),
         });
+
+        // Conta somente as parcelas pendentes a partir desta
+        const all = await emprestimoService.listarParcelas(idEmprestimo);
+        const pendentesFuturos = all.data.filter(
+          p => !p.paga && p.numeroParcela >= data.numeroParcela
+        );
+        setAvailableCount(pendentesFuturos.length);
+        setAnticipateCount(prev => Math.min(prev, pendentesFuturos.length) || 1);
       }
       setErrorMsg("");
     } catch (err) {
       if (err.response?.status === 404) {
         setParcela(null);
+        setAvailableCount(0);
       } else {
         setErrorMsg("Erro ao buscar parcela. Tente novamente.");
       }
@@ -93,8 +104,6 @@ export default function Fatura() {
       <div className="row justify-content-center">
         <div className="col-sm-12 col-md-8 col-lg-6">
           <div className="br-card">
-
-            {/* Tabs – centralizadas e sem borda */}
             <div className="br-tab" data-counter="false">
               <nav
                 className="tab-nav"
@@ -102,20 +111,15 @@ export default function Fatura() {
               >
                 <ul style={{ display: "flex", justifyContent: "center", margin: 0, padding: 0 }}>
                   <li className={`tab-item ${activeTab === "pagar" ? "is-active" : ""}`}>
-                    <button type="button" onClick={() => setActiveTab("pagar")}>
-                      Pagar
-                    </button>
+                    <button type="button" onClick={() => setActiveTab("pagar")}>Pagar</button>
                   </li>
                   <li className={`tab-item ${activeTab === "antecipar" ? "is-active" : ""}`}>
-                    <button type="button" onClick={() => setActiveTab("antecipar")}>
-                      Antecipar
-                    </button>
+                    <button type="button" onClick={() => setActiveTab("antecipar")}>Antecipar</button>
                   </li>
                 </ul>
               </nav>
             </div>
 
-            {/* Título */}
             <div className="card-header text-center pt-2 pb-0">
               <h2 className="mb-0">Fatura do Empréstimo</h2>
             </div>
@@ -128,111 +132,75 @@ export default function Fatura() {
                   {!parcela ? (
                     <>
                       <div className="d-flex justify-content-center mb-3">
-                        <Button variant="secondary" onClick={() => navigate(-1)}>
-                          Voltar
-                        </Button>
+                        <Button variant="secondary" onClick={() => navigate(-1)}>Voltar</Button>
                       </div>
-                      {/* Mensagens */}
                       {successMsg && (
                         <Message
                           type="success"
                           title="Sucesso. "
                           className="mx-auto mt-2 w-75"
-                          onClose={() => setSuccessMsg("")}
-                        >
+                          onClose={() => setSuccessMsg("")}>
                           {successMsg}
                         </Message>
                       )}
-                      {(
-                        <Message
-                          type="info"
-                          title="Informação. "
-                          className="mx-auto mt-2 w-75"
-                          onClose={() => setSuccessMsg("")}
-                        >
-                          Não há parcelas pendentes para este empréstimo.
-                        </Message>
-                      )}
+                      <Message
+                        type="info"
+                        title="Informação. "
+                        className="mx-auto mt-2 w-75"
+                        onClose={() => setSuccessMsg("")}>
+                        Não há parcelas pendentes para este empréstimo.
+                      </Message>
                       {errorMsg && (
                         <Message
                           type="danger"
                           title="Erro. "
                           className="mx-auto mt-2 w-75"
-                          onClose={() => setErrorMsg("")}
-                        >
-                          {errorMsg}
+                          onClose={() => setErrorMsg("")}>{errorMsg}
                         </Message>
                       )}
                     </>
                   ) : (
                     <>
-                      {/* Detalhes da parcela */}
                       <div className="br-row gutter mb-4">
-                        <div className="br-col-xs-12 mb-2">
-                          <strong>Parcela:</strong> {parcela.numeroParcela}
-                        </div>
-                        <div className="br-col-xs-12 mb-2">
-                          <strong>Vencimento:</strong> {parcela.dataVencimento}
-                        </div>
-                        <div className="br-col-xs-12 mb-2">
-                          <strong>Valor:</strong> {parcela.valor}
-                        </div>
+                        <div className="br-col-xs-12 mb-2"><strong>Parcela:</strong> {parcela.numeroParcela}</div>
+                        <div className="br-col-xs-12 mb-2"><strong>Vencimento:</strong> {parcela.dataVencimento}</div>
+                        <div className="br-col-xs-12 mb-2"><strong>Valor:</strong> {parcela.valor}</div>
                       </div>
 
-                      {/* Painel PAGAR */}
                       {activeTab === "pagar" && (
                         <div className="d-flex justify-content-between mb-3">
-                          <Button variant="secondary" onClick={() => navigate(-1)}>
-                            Voltar
-                          </Button>
-                          <Button
-                            variant="primary"
-                            disabled={actionLoading}
-                            onClick={handlePagar}
-                          >
+                          <Button variant="secondary" onClick={() => navigate(-1)}>Voltar</Button>
+                          <Button variant="primary" disabled={actionLoading} onClick={handlePagar}>
                             {actionLoading ? "…" : "Pagar"}
                           </Button>
                         </div>
                       )}
 
-                      {/* Painel ANTECIPAR */}
                       {activeTab === "antecipar" && (
                         <>
-                          <div className="br-input mb-4">
-                            <label htmlFor="anticipateCount">N° parcelas</label>
-                            <input
-                              id="anticipateCount"
-                              type="number"
-                              min="1"
-                              className="w-100"
+                          <div className="mb-4">
+                            <SelectParcelas
                               value={anticipateCount}
-                              onChange={e => setAnticipateCount(e.target.value)}
+                              onChange={setAnticipateCount}
+                              availableCount={availableCount}
                               disabled={actionLoading}
                             />
                           </div>
                           <div className="d-flex justify-content-between mb-3">
-                            <Button variant="secondary" onClick={() => navigate(-1)}>
-                              Voltar
-                            </Button>
-                            <Button
-                              variant="primary"
-                              disabled={actionLoading}
-                              onClick={handleAntecipar}
-                            >
+                            <Button variant="secondary" onClick={() => navigate(-1)}>Voltar</Button>
+                            <Button variant="primary" disabled={actionLoading} onClick={handleAntecipar}>
                               {actionLoading ? "…" : "Antecipar"}
                             </Button>
                           </div>
                         </>
-                      )}                 
-                      
-                      {/* Mensagens */}
+                      )}
+
                       {successMsg && (
                         <Message
                           type="success"
                           title="Sucesso. "
                           className="w-100 mb-0"
-                          onClose={() => setSuccessMsg("")}
-                        >
+                          onClose={() => setSuccessMsg("")}>
                           {successMsg}
                         </Message>
                       )}
@@ -241,8 +209,7 @@ export default function Fatura() {
                           type="danger"
                           title="Erro. "
                           className="w-100 mb-0"
-                          onClose={() => setErrorMsg("")}
-                        >
+                          onClose={() => setErrorMsg("")}>
                           {errorMsg}
                         </Message>
                       )}
