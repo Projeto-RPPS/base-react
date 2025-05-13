@@ -13,8 +13,13 @@ const pesquisarContribuinte = (cpf) => {
     return axios.get(`${API_URL + "/porCpf/" + cpf}`)
 }
 
+const desativarContribuinte = (cpf) => {
+    return axios.delete(API_URL + "/porCpf/" + cpf);
+}
+
 export default {
     listarContribuintes,
     cadastrarContribuintes,
-    pesquisarContribuinte
+    pesquisarContribuinte,
+    desativarContribuinte
 }

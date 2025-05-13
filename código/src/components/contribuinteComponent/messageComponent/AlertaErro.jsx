@@ -3,23 +3,23 @@ import React, { useEffect, useState } from 'react';
 const AlertaErro = ({ nomeClasse, erro, onClose }) => {
   const [titulo, setTitulo] = useState('');
   const [mensagem, setMensagem] = useState('');
-
+  console.log(erro)
   useEffect(() => {
     if (!erro) return;
-
-    let tituloTemp = `Erro ao cadastrar ${nomeClasse}`;
+    let tituloTemp = `Erro ${nomeClasse}`;
     let mensagemTemp = 'Algo inesperado aconteceu.';
-
     if (erro.response) {
       const { status, data } = erro.response;
-
       if (status === 400 && typeof data === 'string') {
         if (data.includes('Erro insert Contribuinte')) {
-          mensagemTemp = 'Já existe um contribuinte cadastrado com este CPF.';
+          mensagemTemp = '. Já existe um contribuinte cadastrado com este CPF.';
         } else if (data.includes('Erro ao inserir email')) {
-            mensagemTemp = 'Esse email já está cadastrado no nosso sistema.';
-        } 
-        else {
+            mensagemTemp = '. Esse email já está cadastrado no nosso sistema.';
+        } else if (data.includes('Já existe uma contribuição')) {
+            mensagemTemp = '. Esse contribuinte já tem contribuição registrada para este mês.';
+        } else if (data.includes('Contribuinte não encontrado')) {
+            mensagemTemp = '. Não há contribuinte com esse CPF.';  
+        } else {
           mensagemTemp = data;
         }
       } else if (status >= 500) {
