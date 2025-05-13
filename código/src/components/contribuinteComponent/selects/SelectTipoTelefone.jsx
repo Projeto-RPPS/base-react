@@ -30,7 +30,7 @@ export default function SelectTipoTelefone({ onChange, value, name }) {
     if (onChange) {
       onChange({
         target: {
-          id: "tipoTelefone", // Usa o name fornecido ou padrão
+          id: "tipoTelefone",
           value: tipo
         }
       });
@@ -43,14 +43,14 @@ export default function SelectTipoTelefone({ onChange, value, name }) {
   };
 
   return (
-    <div className="br-select" ref={selectRef}>
+    <div className="br-select" ref={selectRef} style={{ position: "relative" }}>
       <div className="br-input">
         <label htmlFor={`select-tipo-telefone-${name}`}>Tipo de Telefone</label>
         <input
           id={`select-tipo-telefone-${name}`}
           type="text"
           placeholder="Selecione o tipo"
-          value={value || ""} // Usa o value diretamente do pai
+          value={value || ""}
           readOnly
           onClick={toggleList}
         />
@@ -64,7 +64,23 @@ export default function SelectTipoTelefone({ onChange, value, name }) {
         </button>
       </div>
       {isOpen && (
-        <div className="br-list" tabIndex="0" style={{ display: 'block' }}>
+        <div 
+          className="br-list" 
+          tabIndex="0"
+          style={{
+            display: 'block',
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            width: '100%',
+            maxHeight: '13rem',
+            overflowY: 'auto',
+            background: '#fff',
+            border: '1px solid #ccc',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            zIndex: 10
+          }}
+        >
           {tiposTelefone.map((tipo, index) => (
             <div 
               className="br-item" 
@@ -78,7 +94,7 @@ export default function SelectTipoTelefone({ onChange, value, name }) {
                   type="radio"
                   name={`tipo-telefone-${name}`}
                   value={tipo}
-                  checked={value === tipo} // Compara com o value do pai
+                  checked={value === tipo}
                   readOnly
                 />
                 <label htmlFor={`tipo-tel-${index}-${name}`}>{tipo}</label>

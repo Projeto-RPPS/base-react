@@ -3,22 +3,29 @@ import React, { useEffect, useState } from 'react';
 const AlertaErro = ({ nomeClasse, erro, onClose }) => {
   const [titulo, setTitulo] = useState('');
   const [mensagem, setMensagem] = useState('');
-  console.log(erro)
+
   useEffect(() => {
     if (!erro) return;
+
+    // Configura o temporizador para fechar automaticamente após 4 segundos
+    const timer = setTimeout(() => {
+      if (onClose) onClose();
+    }, 3000);
+
     let tituloTemp = `Erro ${nomeClasse}`;
     let mensagemTemp = 'Algo inesperado aconteceu.';
+    
     if (erro.response) {
       const { status, data } = erro.response;
       if (status === 400 && typeof data === 'string') {
         if (data.includes('Erro insert Contribuinte')) {
           mensagemTemp = '. Já existe um contribuinte cadastrado com este CPF.';
         } else if (data.includes('Erro ao inserir email')) {
-            mensagemTemp = '. Esse email já está cadastrado no nosso sistema.';
+          mensagemTemp = '. Esse email já está cadastrado no nosso sistema.';
         } else if (data.includes('Já existe uma contribuição')) {
-            mensagemTemp = '. Esse contribuinte já tem contribuição registrada para este mês.';
+          mensagemTemp = '. Esse contribuinte já tem contribuição registrada para este mês.';
         } else if (data.includes('Contribuinte não encontrado')) {
-            mensagemTemp = '. Não há contribuinte com esse CPF.';  
+          mensagemTemp = '. Não há contribuinte com esse CPF.';  
         } else {
           mensagemTemp = data;
         }
@@ -27,11 +34,16 @@ const AlertaErro = ({ nomeClasse, erro, onClose }) => {
       }
     } else if (erro.message === 'Network Error') {
       mensagemTemp = 'Não foi possível conectar ao servidor.';
+    } else if (erro.message) {
+      mensagemTemp = erro.message;
     }
 
     setTitulo(tituloTemp);
     setMensagem(mensagemTemp);
-  }, [nomeClasse, erro]);
+
+    // Limpa o temporizador quando o componente for desmontado ou quando o erro mudar
+    return () => clearTimeout(timer);
+  }, [nomeClasse, erro, onClose]);
 
   if (!erro) return null;
 

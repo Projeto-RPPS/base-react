@@ -149,16 +149,14 @@ const ContribuicaoData = () => {
         </div>
 
         {contribuicoes.length > 0 && (
-          <div className="br-card mt-3">
-            <div className="card-content p-4">
+          
               <Table
                 title="Contribuições"
                 columns={columns}
                 data={contribuicoes}
                 density="medium"
               />
-            </div>
-          </div>
+           
         )}
       </div>
     </div>

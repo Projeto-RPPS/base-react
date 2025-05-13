@@ -18,8 +18,9 @@ const EditCategoria = ({editFormInitial}) => {
         setFormData({
           idCategoria: response.data.idCategoria,
           nomeCategoria: response.data.nomeCategoria,
-          percentualContribuicaoAntesDeSalvar: response.data.percentualContribuicao?.toString() || "",
-          percentualContribuicao: response.data.percentualContribuicao?.toString() || ""
+          // Multiplica por 100 para exibição
+          percentualContribuicaoAntesDeSalvar: (response.data.percentualContribuicao * 100)?.toString() || "",
+          percentualContribuicao: (response.data.percentualContribuicao * 100)?.toString() || ""
         });
       })
       .catch(error => {
@@ -36,19 +37,13 @@ const EditCategoria = ({editFormInitial}) => {
     });
   };
 
-  const formatDecimalInput = (value) => {
-    // Remove tudo exceto números e ponto decimal
-    let formattedValue = value.replace(/[^0-9.]/g, '');
+  const formatPercentInput = (value) => {
+    // Remove tudo exceto números
+    let formattedValue = value.replace(/[^0-9]/g, '');
     
-    // Permite apenas um ponto decimal
-    const parts = formattedValue.split('.');
-    if (parts.length > 2) {
-      formattedValue = parts[0] + '.' + parts.slice(1).join('');
-    }
-    
-    // Limita a 2 casas decimais
-    if (parts.length === 2) {
-      formattedValue = parts[0] + '.' + parts[1].slice(0, 2);
+    // Limita a 2 dígitos (0-99)
+    if (formattedValue.length > 2) {
+      formattedValue = formattedValue.slice(0, 2);
     }
     
     return formattedValue;
@@ -60,13 +55,12 @@ const EditCategoria = ({editFormInitial}) => {
     const jsonFinal = {
       idCategoria: formData.idCategoria,
       nomeCategoria: formData.nomeCategoria,
-      percentualContribuicao: 0, // Fixo conforme solicitado
+      percentualContribuicao: 0,
       percentualContribuicaoAntesDeSalvar: parseFloat(formData.percentualContribuicaoAntesDeSalvar) || 0
     };
     
     categoriaService.editarCategoria(jsonFinal)
       .then(response => {
-        response
         setSuccessMessage(true);
         setFormData(editFormInitial);
       })
@@ -94,7 +88,7 @@ const EditCategoria = ({editFormInitial}) => {
               <fieldset className="br-fieldset mb-4">
                 <legend>Selecionar Categoria</legend>
                 <div className="row">
-                  <div className="col-12">
+                  <div className="col-8">
                     <SelectCategoria 
                       value={formData.idCategoria}
                       onChange={handleCategoriaChange}
@@ -108,7 +102,7 @@ const EditCategoria = ({editFormInitial}) => {
                 <fieldset className="br-fieldset mb-4">
                   <legend>Editar Categoria</legend>
                   <div className="row g-3">
-                    <div className="col-12">
+                    <div className="col-8">
                       <Input
                         id="nomeCategoria"
                         label="Nome da Categoria"
@@ -119,24 +113,27 @@ const EditCategoria = ({editFormInitial}) => {
                         maxLength={100}
                       />
                     </div>
-                    <div className="col-12">
-                      <Input
-                        id="percentualContribuicaoAntesDeSalvar"
-                        label="Percentual de Contribuição (%)"
-                        value={formData.percentualContribuicaoAntesDeSalvar}
-                        onChange={(e) => {
-                          const formattedValue = formatDecimalInput(e.target.value);
-                          handleChange({
-                            target: {
-                              id: "percentualContribuicaoAntesDeSalvar",
-                              value: formattedValue
-                            }
-                          });
-                        }}
-                        placeholder={`Valor atual: ${formData.percentualContribuicao}%`}
-                        required
-                        maxLength={6}
-                      />
+                    <div className="col-8">
+                      <div className="percent-input-container">
+                        <Input
+                          id="percentualContribuicaoAntesDeSalvar"
+                          label="Percentual de Contribuição"
+                          value={formData.percentualContribuicaoAntesDeSalvar}
+                          onChange={(e) => {
+                            const formattedValue = formatPercentInput(e.target.value);
+                            handleChange({
+                              target: {
+                                id: "percentualContribuicaoAntesDeSalvar",
+                                value: formattedValue
+                              }
+                            });
+                          }}
+                          placeholder={`Valor atual: ${formData.percentualContribuicao}%`}
+                          required
+                          maxLength={2}
+                          inputMode="numeric"
+                        />
+                      </div>
                     </div>
                   </div>
                 </fieldset>
