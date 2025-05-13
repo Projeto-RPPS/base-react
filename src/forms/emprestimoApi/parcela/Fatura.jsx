@@ -93,66 +93,76 @@ export default function Fatura() {
       <div className="row justify-content-center">
         <div className="col-sm-12 col-md-8 col-lg-6">
           <div className="br-card">
-            <div className="card-header text-center">
-              <h2>Fatura do Empréstimo</h2>
-            </div>
-            <div className="card-content p-4">
-              
-              {/* Tabs GOV.BR */}
-              <div className="br-tab" data-counter="false">
-                <nav className="tab-nav">
-                  <ul>
-                    <li className={`tab-item ${activeTab === "pagar" ? "is-active" : ""}`}>
-                      <button type="button" onClick={() => setActiveTab("pagar")}>
-                        <span className="name">Pagar</span>
-                      </button>
-                    </li>
-                    <li className={`tab-item ${activeTab === "antecipar" ? "is-active" : ""}`}>
-                      <button type="button" onClick={() => setActiveTab("antecipar")}>
-                        <span className="name">Antecipar</span>
-                      </button>
-                    </li>
-                  </ul>
-                </nav>
-              </div>
 
+            {/* Tabs – centralizadas e sem borda */}
+            <div className="br-tab" data-counter="false">
+              <nav
+                className="tab-nav"
+                style={{ borderBottom: "none", display: "flex", justifyContent: "center" }}
+              >
+                <ul style={{ display: "flex", justifyContent: "center", margin: 0, padding: 0 }}>
+                  <li className={`tab-item ${activeTab === "pagar" ? "is-active" : ""}`}>
+                    <button type="button" onClick={() => setActiveTab("pagar")}>
+                      Pagar
+                    </button>
+                  </li>
+                  <li className={`tab-item ${activeTab === "antecipar" ? "is-active" : ""}`}>
+                    <button type="button" onClick={() => setActiveTab("antecipar")}>
+                      Antecipar
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+
+            {/* Título */}
+            <div className="card-header text-center pt-2 pb-0">
+              <h2 className="mb-0">Fatura do Empréstimo</h2>
+            </div>
+
+            <div className="card-content p-4">
               {loading ? (
                 <p className="text-center my-4">Carregando dados da parcela…</p>
               ) : (
                 <>
-                  {/* <<<<<<<<<<<< MENSAGENS GLOBAIS >>>>>>>>>> */}
-                  {successMsg && (
-                    <Message
-                      type="success"
-                      title="Sucesso. "
-                      className="mb-4"
-                      onClose={() => setSuccessMsg("")}
-                    >
-                      {successMsg}
-                    </Message>
-                  )}
-                  {errorMsg && (
-                    <Message
-                      type="danger"
-                      title="Erro. "
-                      className="mb-4"
-                      onClose={() => setErrorMsg("")}
-                    >
-                      {errorMsg}
-                    </Message>
-                  )}
-
-                  {/* Sem parcelas pendentes */}
                   {!parcela ? (
                     <>
-                      <p className="text-center text-down-01 my-4">
-                        Não há parcelas pendentes para este empréstimo.
-                      </p>
-                      <div className="d-flex justify-content-center mb-4">
+                      <div className="d-flex justify-content-center mb-3">
                         <Button variant="secondary" onClick={() => navigate(-1)}>
                           Voltar
                         </Button>
                       </div>
+                      {/* Mensagens */}
+                      {successMsg && (
+                        <Message
+                          type="success"
+                          title="Sucesso. "
+                          className="mx-auto mt-2 w-75"
+                          onClose={() => setSuccessMsg("")}
+                        >
+                          {successMsg}
+                        </Message>
+                      )}
+                      {(
+                        <Message
+                          type="info"
+                          title="Informação. "
+                          className="mx-auto mt-2 w-75"
+                          onClose={() => setSuccessMsg("")}
+                        >
+                          Não há parcelas pendentes para este empréstimo.
+                        </Message>
+                      )}
+                      {errorMsg && (
+                        <Message
+                          type="danger"
+                          title="Erro. "
+                          className="mx-auto mt-2 w-75"
+                          onClose={() => setErrorMsg("")}
+                        >
+                          {errorMsg}
+                        </Message>
+                      )}
                     </>
                   ) : (
                     <>
@@ -213,6 +223,28 @@ export default function Fatura() {
                             </Button>
                           </div>
                         </>
+                      )}                 
+                      
+                      {/* Mensagens */}
+                      {successMsg && (
+                        <Message
+                          type="success"
+                          title="Sucesso. "
+                          className="w-100 mb-0"
+                          onClose={() => setSuccessMsg("")}
+                        >
+                          {successMsg}
+                        </Message>
+                      )}
+                      {errorMsg && (
+                        <Message
+                          type="danger"
+                          title="Erro. "
+                          className="w-100 mb-0"
+                          onClose={() => setErrorMsg("")}
+                        >
+                          {errorMsg}
+                        </Message>
                       )}
                     </>
                   )}
