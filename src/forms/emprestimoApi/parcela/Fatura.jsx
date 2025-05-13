@@ -162,7 +162,7 @@ export default function Fatura() {
                   ) : (
                     <>
                       <div className="br-row gutter mb-4">
-                        <div className="br-col-xs-12 mb-2"><strong>Parcela:</strong> {parcela.numeroParcela}</div>
+                        <div className="br-col-xs-12 mb-2"><strong>Parcela pendente:</strong> {parcela.numeroParcela}</div>
                         <div className="br-col-xs-12 mb-2"><strong>Vencimento:</strong> {parcela.dataVencimento}</div>
                         <div className="br-col-xs-12 mb-2"><strong>Valor:</strong> {parcela.valor}</div>
                       </div>
@@ -189,7 +189,7 @@ export default function Fatura() {
                           <div className="d-flex justify-content-between mb-3">
                             <Button variant="secondary" onClick={() => navigate(-1)}>Voltar</Button>
                             <Button variant="primary" disabled={actionLoading} onClick={handleAntecipar}>
-                              {actionLoading ? "…" : "Antecipar"}
+                              {actionLoading ? "…" : "Pagar"}
                             </Button>
                           </div>
                         </>
