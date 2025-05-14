@@ -1,0 +1,13 @@
+.br-table {
+  width: 100%;
+  table-layout: fixed;
+}
+.br-table th,
+.br-table td {
+  text-align: center;
+  vertical-align: middle;
+}
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
