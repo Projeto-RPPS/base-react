@@ -11,17 +11,21 @@ export default {
     listarEmprestimosPorCpf: (cpf) =>
     api.get(`/emprestimos/${cpf}`),
 
-//   pagarParcela: (idEmprestimo, parcelaId) =>
-//     api.post(`/emprestimos/${idEmprestimo}/parcelas/pagar`, { parcelaId }),
+    pagarParcela: (idEmprestimo) =>
+    api.post(`/emprestimos/${idEmprestimo}/parcelas/pagar`),
 
-//   anteciparParcela: (idEmprestimo, parcelaId) =>
-//     api.post(`/emprestimos/${idEmprestimo}/parcelas/antecipar`, { parcelaId }),
+    anteciparParcelas: (idEmprestimo, quantidadeParcelas) =>
+    api.post(
+        `/emprestimos/${idEmprestimo}/parcelas/antecipar`,
+        null,                        
+        { params: { quantidadeParcelas } }  
+    ),
 
-//   listarParcelas: (idEmprestimo) =>
-//     api.get(`/emprestimos/${idEmprestimo}/parcelas`),
+    listarParcelas: (idEmprestimo) =>
+    api.get(`/emprestimos/${idEmprestimo}/parcelas`),
 
-//   proximaPendente: (idEmprestimo) =>
-//     api.get(`/emprestimos/${idEmprestimo}/parcelas/proximaPendente`),
+    proximaPendente: (idEmprestimo) =>
+    api.get(`/emprestimos/${idEmprestimo}/parcelas/proximaPendente`),
 
     consultarMargem: (cpf) =>
     api.get(`/emprestimos/margem-consignavel/${cpf}`)
