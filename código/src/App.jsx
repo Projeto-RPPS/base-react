@@ -1,4 +1,3 @@
-import React from 'react'
 import CreateLoan from './forms/emprestimoApi/emprestimo/CreateLoan'
 import LoanList from './forms/emprestimoApi/emprestimo/LoanList'
 import SimulateLoan from './forms/emprestimoApi/emprestimo/SimulateLoan'
