@@ -110,7 +110,7 @@ export default function LoanList() {
                 <h2>Buscar Empréstimos</h2>
               </div>
               <div className="card-content p-4">
-                <form onSubmit={handleSubmit} className="row align-items-end mb-4">
+                <form onSubmit={handleSubmit} className="row align-items-end mb-3">
                   <div className="col-9">
                     <div className="br-input mb-0">
                       <label htmlFor="cpfBusca">CPF</label>
@@ -165,12 +165,6 @@ export default function LoanList() {
                   >
                     {warningMsg}
                   </Message>
-                )}
-
-                {!fetchedOnce && !errorMsg && !warningMsg && (
-                  <p className="text-center text-down-01">
-                    Informe um CPF e clique em Buscar para ver seus empréstimos.
-                  </p>
                 )}
               </div>
             </div>

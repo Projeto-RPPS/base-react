@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 export default function Message({
   type = "info",        // "success" | "warning" | "danger" | "info"
@@ -6,7 +6,18 @@ export default function Message({
   children,
   onClose,
   className = "",
+  autoClose = 3000
 }) {
+  
+  useEffect(() => {
+    if (onClose) {
+      const timer = setTimeout(() => {
+        onClose();
+      }, autoClose);
+      return () => clearTimeout(timer);
+    }
+  }, [autoClose, onClose]);
+
   return (
     <div className={`br-message ${type} ${className}`}>
       <div className="icon">

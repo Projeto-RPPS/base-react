@@ -89,7 +89,7 @@ export default function SimulateMargin() {
               <div className="card-content p-4">
                 <form
                   onSubmit={handleSubmit}
-                  className="row mb-4 align-items-end"
+                  className="row mb-3 align-items-end"
                   noValidate
                 >
                   <div className="col-9">
@@ -199,13 +199,6 @@ export default function SimulateMargin() {
                   </Message>
                   )}
 
-                {/* Mensagem inicial */}
-                {!fetchedOnce && !errorMsg && (
-                  <p className="text-center text-down-01">
-                    Informe um CPF e clique em Buscar para ver sua margem
-                    disponível.
-                  </p>
-                )}
               </div>
             </div>
           </div>
