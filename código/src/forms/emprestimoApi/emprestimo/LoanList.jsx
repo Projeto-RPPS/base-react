@@ -107,7 +107,7 @@ export default function LoanList() {
           <div className="col-12 col-md-10 col-lg-6">
             <div className="br-card">
               <div className="card-header text-center">
-                <h2>Buscar Empréstimos</h2>
+                <h2>Meus Empréstimos</h2>
               </div>
               <div className="card-content p-4">
                 <form onSubmit={handleSubmit} className="row align-items-end mb-3">

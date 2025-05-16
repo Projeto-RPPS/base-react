@@ -6,7 +6,7 @@ export default function Message({
   children,
   onClose,
   className = "",
-  autoClose = 3000
+  autoClose = 5000
 }) {
   
   useEffect(() => {

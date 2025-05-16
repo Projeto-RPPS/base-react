@@ -6,7 +6,6 @@ import SimulateMargin from './forms/emprestimoApi/margemCosignavel/SimulateMargi
 import ContribuinteData from './forms/contribuinteApi/ContribuinteData'
 import Header from './components/global/Header'
 import Footer from './components/global/Footer'
-import NavigationRoutes from './components/global/NavigationRoutes'
 import FormularioCategoria from './forms/contribuinteApi/FormularioCategoria'
 import FormularioContribuinte from './forms/contribuinteApi/FormularioContribuinte'
 import FazerContribuicao from './forms/contribuinteApi/FazerContribuicao'
@@ -24,14 +23,10 @@ export default function App() {
       <main id="main-content" className="d-flex flex-fill mb-5">
         <div className="container-fluid d-flex">
           <div className="col mb-5">
-            <NavigationRoutes />
             <div className="main-content pl-sm-3 mt-4">
               <Routes>
-                {/* Rota raiz - redireciona para empréstimos por padrão */}
+                <Route path="/" element={<Navigate to="/home" replace />} />
                 <Route path="/home" element={<HomeContent />} />
-                
-                {/* Rotas do sistema de empréstimos */}
-                <Route path="/" element={<Navigate to="/emprestimos" replace />} />
                 <Route path="/emprestimos" element={<LoanList />} />
                 <Route path="/emprestimos/criar" element={<CreateLoan />} />
                 <Route path="/emprestimos/simular" element={<SimulateLoan />} />

@@ -1,10 +1,13 @@
 // src/components/Header.jsx
 import React, { useState, useEffect, useRef } from "react";
+import { NavLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openMenus, setOpenMenus] = useState({});
   const menuRef = useRef(null);
+  const navigate = useNavigate();
 
   // Fecha menu ao clicar fora
   useEffect(() => {
@@ -23,30 +26,85 @@ export default function Header() {
 
   const menuItems = [
     {
-      id: "camada1",
-      icon: "fa-bell",
-      label: "Camada 1",
+      id: "home",
+      icon: "fa-home",
+      label: "Home",
+      link: "/home",
+    },
+    {
+      id: "contribuinte",
+      icon: "fa-users",
+      label: "Contribuinte",
       children: [
-        { id: "c2-1", icon: "fa-heart", label: "Camada 2", link: "#" },
-        { id: "c2-2", icon: "fa-user", label: "Camada 2", link: "#" },
-        { id: "c2-3", icon: "fa-box", label: "Camada 2", link: "#" },
+        { id: "fazer-contribuicao", icon: "fa-hand-holding-heart", label: "Fazer Contribuição", link: "/contribuicoes" },
+        { id: "listar-contribuintes", icon: "fa-user", label: "Contribuintes", link: "/contribuintes" },
+        { id: "historico-contribuicoes", icon: "fa-history", label: "Histórico", link: "/contribuicoes/historico" },
       ],
     },
     {
-      id: "camada1-2",
-      icon: "fa-bell",
-      label: "Camada 1",
+      id: "categoria",
+      icon: "fa-tags",
+      label: "Categoria",
       children: [
-        { id: "c2-4", icon: "fa-heart", label: "Camada 2", link: "#" },
-        { id: "c2-5", icon: "fa-user", label: "Camada 2", link: "#" },
-        { id: "c2-6", icon: "fa-box", label: "Camada 2", link: "#" },
+        { id: "cadastrar-categoria", icon: "fa-plus", label: "Cadastrar Categoria", link: "/contribuintes/categorias" },
+        { id: "editar-categoria", icon: "fa-edit", label: "Editar Categoria", link: "/contribuintes/categorias/editar" },
       ],
     },
     {
-      id: "item-simples",
-      icon: "fa-bell",
-      label: "Item de Camada 1",
-      link: "#",
+      id: "emprestimo",
+      icon: "fa-credit-card",
+      label: "Empréstimo",
+      children: [
+        { id: "criar-emprestimo", icon: "fa-plus-circle", label: "Criar", link: "/emprestimos/criar" },
+        { id: "simular-emprestimo", icon: "fa-calculator", label: "Simular", link: "/emprestimos/simular" },
+        { id: "listar-emprestimos", icon: "fa-list", label: "Empréstimos", link: "/emprestimos" },
+      ],
+    },
+    {
+      id: "margem",
+      icon: "fa-balance-scale",
+      label: "Margem Consignável",
+      children: [
+        { id: "simular-margem", icon: "fa-sliders-h", label: "Margem", link: "/margem" },
+      ],
+    },
+    {
+    id: "beneficios",
+    icon: "fa-gift",               // ícone de presente
+    label: "Benefícios",
+    children: [
+      {
+        id: "listar-beneficios",
+        icon: "fa-list",           // ícone de lista
+        label: "Listar Benefícios",
+        link: "/beneficios"
+      },
+      {
+        id: "detalhar-beneficio",
+        icon: "fa-info-circle",    // ícone de informação
+        label: "Detalhar Benefício",
+        link: "/beneficios/:id"
+      }
+    ]
+  },
+    {
+      id: "solicitarBeneficio",
+      icon: "fa-file-medical",      // ícone de formulário
+      label: "Solicitar Benefício",
+      children: [
+        {
+          id: "nova-solicitacao",
+          icon: "fa-edit",           // ícone de edição
+          label: "Nova Solicitação",
+          link: "/beneficios/solicitar"
+        },
+        {
+          id: "historico-solicitacoes",
+          icon: "fa-history",        // ícone de histórico
+          label: "Histórico de Solicitações",
+          link: "/beneficios/solicitar/historico"
+        }
+      ]
     },
   ];
 
@@ -63,7 +121,7 @@ export default function Header() {
             paddingBottom: "0.5rem",
           }}
         >
-          {/* topo: logo + assinatura (se aplicável) */}
+          {/* topo: logo + assinatura */}
           <div className="header-top">
             <div className="header-logo">
               <img
@@ -111,24 +169,28 @@ export default function Header() {
                 marginLeft: "auto",
               }}
             >
-              <a href="#">Link de acesso 1</a>
-              <a href="#">Link de acesso 2</a>
-              <a href="#">Link de acesso 3</a>
-              <a href="#">Link de acesso 4</a>
+              <a href="/contribuintes">Contribuintes</a>
+              <a href="/contribuicoes">Contribuição</a>
+              <a href="/emprestimos">Empréstimo</a>
+              <a href="/margem">Margem Consignável</a>
+              <a href="#">Benefício</a>
+              <a href="#">Solicitar Benefício</a>
 
               <span
                 className="br-divider vertical"
                 style={{
-                  margin: "0 0.75rem",    
-                  height: "1.75rem",    
-                  alignSelf: "center"     
+                  margin: "0 0.75rem",
+                  height: "1.75rem",
+                  alignSelf: "center",
                 }}
               />
 
               <button
                 className="br-sign-in small"
                 type="button"
-                onClick={() => setIsMenuOpen(false)}
+                onClick={() => {setIsMenuOpen(false);
+                  navigate("/login");}
+                }
               >
                 <i className="fas fa-user" aria-hidden="true" />
                 <span className="d-sm-inline">Entrar</span>
@@ -216,9 +278,7 @@ export default function Header() {
                   item.children ? (
                     <li
                       key={item.id}
-                      className={`drop-menu${
-                        openMenus[item.id] ? " active" : ""
-                      }`}
+                      className={`drop-menu${openMenus[item.id] ? " active" : ""}`}
                     >
                       <a
                         href="#"
@@ -239,24 +299,34 @@ export default function Header() {
                       <ul style={{ paddingLeft: "var(--spacing-scale-3x)" }}>
                         {item.children.map(ch => (
                           <li key={ch.id}>
-                            <a className="menu-item" href={ch.link}>
+                            <NavLink
+                              to={ch.link}
+                              end
+                              className="menu-item"
+                              onClick={() => setIsMenuOpen(false)}
+                            >
                               <span className="icon">
                                 <i className={`fas ${ch.icon}`} />
                               </span>
                               <span className="content">{ch.label}</span>
-                            </a>
+                            </NavLink>
                           </li>
                         ))}
                       </ul>
                     </li>
                   ) : (
                     <li key={item.id}>
-                      <a className="menu-item" href={item.link}>
+                      <NavLink
+                        to={item.link}
+                        end
+                        className="menu-item"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
                         <span className="icon">
                           <i className={`fas ${item.icon}`} />
                         </span>
                         <span className="content">{item.label}</span>
-                      </a>
+                      </NavLink>
                     </li>
                   )
                 )}
@@ -267,10 +337,7 @@ export default function Header() {
               className="menu-footer"
               style={{ borderTop: "1px solid var(--border-color)" }}
             >
-              <div className="menu-links">
-                <a href="#">Ajuda</a>
-                <a href="#">Sobre</a>
-              </div>
+              
             </div>
           </div>
         </div>

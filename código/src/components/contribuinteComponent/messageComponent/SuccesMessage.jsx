@@ -12,7 +12,7 @@ const SuccessMessage = ({
     // Configura o temporizador para fechar automaticamente após 3 segundos
     const timer = setTimeout(() => {
       onClose();
-    }, 3000);
+    }, 5000);
 
     // Limpa o temporizador quando o componente for desmontado
     return () => clearTimeout(timer);

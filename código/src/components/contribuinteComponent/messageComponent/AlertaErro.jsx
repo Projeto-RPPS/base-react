@@ -10,7 +10,7 @@ const AlertaErro = ({ nomeClasse, erro, onClose }) => {
     // Configura o temporizador para fechar automaticamente após 4 segundos
     const timer = setTimeout(() => {
       if (onClose) onClose();
-    }, 3000);
+    }, 5000);
 
     let tituloTemp = `Erro ${nomeClasse}`;
     let mensagemTemp = 'Algo inesperado aconteceu.';
