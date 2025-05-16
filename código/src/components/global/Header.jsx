@@ -1,25 +1,40 @@
 // src/components/Header.jsx
-import React, { useEffect, useRef } from "react";
-
+import React, { useState, useEffect, useRef } from "react";
+ 
 function Header() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const headerRef = useRef(null);
   const menuRef = useRef(null);
-
+  const searchRef = useRef(null);
+ 
+  // Fechar menu quando clicar fora
   useEffect(() => {
-    if (!window.core) {
-      console.error("GovBR DS core não carregado!");
-      return;
+    function handleClickOutside(event) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setIsSearchOpen(false);
+      }
     }
-    // 2) instancia o header compacto
-    if (headerRef.current) {
-      new core.BRHeader("br-header", headerRef.current);
-    }
-    // 3) instancia o menu off-canvas
-    if (menuRef.current) {
-      new core.BRMenu("br-menu", menuRef.current);
-    }
+ 
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
-
+ 
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+    if (isSearchOpen) setIsSearchOpen(false);
+  };
+ 
+  const toggleSearch = () => {
+    setIsSearchOpen(!isSearchOpen);
+    if (isMenuOpen) setIsMenuOpen(false);
+  };
+ 
   return (
     <>
       {/* === HEADER COMPACTO === */}
@@ -34,15 +49,15 @@ function Header() {
               <span className="br-divider vertical" />
               <div className="header-sign">Assinatura</div>
             </div>
-
+ 
             <div className="header-actions">
               {/* Acesso Rápido */}
               <div className="header-links dropdown">
                 <button
                   className="br-button circle small"
                   type="button"
-                  data-toggle="dropdown"
                   aria-label="Abrir Acesso Rápido"
+                  onClick={() => setIsMenuOpen(false)}
                 >
                   <i className="fas fa-ellipsis-v" aria-hidden="true" />
                 </button>
@@ -57,16 +72,16 @@ function Header() {
                   ))}
                 </div>
               </div>
-
+ 
               <span className="br-divider vertical mx-half mx-sm-1" />
-
+ 
               {/* Funcionalidades */}
               <div className="header-functions dropdown">
                 <button
                   className="br-button circle small"
                   type="button"
-                  data-toggle="dropdown"
                   aria-label="Abrir Funcionalidades do Sistema"
+                  onClick={() => setIsMenuOpen(false)}
                 >
                   <i className="fas fa-th" aria-hidden="true" />
                 </button>
@@ -78,7 +93,7 @@ function Header() {
                     { icon: "fa-chart-bar", label: "Funcionalidade 1" },
                     { icon: "fa-headset", label: "Funcionalidade 2" },
                     { icon: "fa-comment", label: "Funcionalidade 3" },
-                    { icon: "fa-adjust", label: "Funcionalidade 4" }
+                    { icon: "fa-adjust", label: "Funcionalidade 4" },
                   ].map((f, idx) => (
                     <div key={idx} className="br-item">
                       <button
@@ -93,27 +108,26 @@ function Header() {
                   ))}
                 </div>
               </div>
-
+ 
               {/* Busca */}
               <div className="header-search-trigger">
                 <button
                   className="br-button circle"
                   type="button"
                   aria-label="Abrir Busca"
-                  data-toggle="search"
-                  data-target=".header-search"
+                  onClick={toggleSearch}
                 >
                   <i className="fas fa-search" aria-hidden="true" />
                 </button>
               </div>
-
+ 
               {/* Login */}
               <div className="header-login">
                 <div className="header-sign-in">
                   <button
                     className="br-sign-in small"
                     type="button"
-                    data-trigger="login"
+                    onClick={() => setIsMenuOpen(false)}
                   >
                     <i className="fas fa-user" aria-hidden="true" />
                     <span className="d-sm-inline">Entrar</span>
@@ -123,7 +137,7 @@ function Header() {
               </div>
             </div>
           </div>
-
+ 
           {/* Rodapé do Header */}
           <div className="header-bottom">
             <div className="header-menu">
@@ -132,8 +146,7 @@ function Header() {
                   className="br-button small circle"
                   type="button"
                   aria-label="Menu principal"
-                  data-toggle="menu"
-                  data-target="#main-navigation"
+                  onClick={toggleMenu}
                 >
                   <i className="fas fa-bars" aria-hidden="true" />
                 </button>
@@ -142,8 +155,11 @@ function Header() {
                 <div className="header-title">Header Compacto</div>
               </div>
             </div>
-
-            <div className="header-search">
+ 
+            <div
+              ref={searchRef}
+              className={`header-search ${isSearchOpen ? "active" : ""}`}
+            >
               <div className="br-input has-icon">
                 <label htmlFor="searchbox-98886">Texto da pesquisa</label>
                 <input
@@ -163,75 +179,91 @@ function Header() {
                 className="br-button circle search-close ml-1"
                 type="button"
                 aria-label="Fechar Busca"
-                data-dismiss="search"
+                onClick={() => setIsSearchOpen(false)}
               >
                 <i className="fas fa-times" aria-hidden="true" />
               </button>
             </div>
           </div>
         </div>
-      </header>
-
-      {/* === MENU OFF-CANVAS === */}
-      <div
-        className="br-menu"
-        id="main-navigation"
-        ref={menuRef}
-      >
-        <div className="menu-container">
-          <div className="menu-panel">
-            <div className="menu-header">
-              <div className="menu-title">
-                <span>Identificação do site ou Sistema</span>
-              </div>
-              <div className="menu-close">
+ 
+        {/* Menu principal */}
+        <div ref={menuRef} className={`br-menu ${isMenuOpen ? "active" : ""}`}>
+          <div className="menu-container">
+            <div className="menu-scrim" onClick={() => setIsMenuOpen(false)} />
+            <div className="menu-panel">
+              <div className="menu-header">
                 <button
                   className="br-button circle"
                   type="button"
-                  aria-label="Fechar o menu"
-                  data-dismiss="menu"
+                  aria-label="Fechar Menu"
+                  onClick={() => setIsMenuOpen(false)}
                 >
                   <i className="fas fa-times" aria-hidden="true" />
                 </button>
+                <div className="menu-title">
+                  <span>Menu Principal</span>
+                </div>
               </div>
-            </div>
-
-            <nav className="menu-body" role="tree">
-              <a className="menu-item divider" href="#home">
-                <span className="content">Início</span>
-              </a>
-              <div className="menu-folder">
-                <a className="menu-item" href="#servicos" role="treeitem">
-                  <span className="content">Serviços</span>
-                </a>
+              <div className="menu-body">
                 <ul>
-                  <li>
-                    <a
-                      className="menu-item"
-                      href="#servico1"
-                      role="treeitem"
-                    >
-                      <span className="content">Serviço 1</span>
+                  <li className="menu-folder">
+                    <a className="menu-item" href="#">
+                      <span className="content">Item de menu 1</span>
                     </a>
+                    <ul>
+                      <li>
+                        <a className="menu-item" href="#">
+                          <span className="content">Subitem 1</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a className="menu-item" href="#">
+                          <span className="content">Subitem 2</span>
+                        </a>
+                      </li>
+                    </ul>
+                  </li>
+                  <li>
+                    <a className="menu-item" href="#">
+                      <span className="content">Item de menu 2</span>
+                    </a>
+                  </li>
+                  <li className="drop-menu">
+                    <a className="menu-item" href="#">
+                      <span className="content">Item com dropdown</span>
+                      <span className="support">
+                        <i className="fas fa-angle-down" aria-hidden="true" />
+                      </span>
+                    </a>
+                    <ul>
+                      <li>
+                        <a className="menu-item" href="#">
+                          <span className="content">Opção 1</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a className="menu-item" href="#">
+                          <span className="content">Opção 2</span>
+                        </a>
+                      </li>
+                    </ul>
                   </li>
                 </ul>
               </div>
-            </nav>
-
-            <div className="menu-footer">
-              <div className="menu-links">
-                <a href="#legislacao">
-                  <span className="mr-1">Legislação</span>
-                  <i className="fas fa-external-link-square-alt" />
-                </a>
+              <div className="menu-footer">
+                <div className="menu-links">
+                  <a href="#">Ajuda</a>
+                  <a href="#">Sobre</a>
+                </div>
               </div>
             </div>
           </div>
-          <div className="menu-scrim" data-dismiss="menu" tabIndex={0} />
         </div>
-      </div>
+      </header>
     </>
   );
 }
-
+ 
 export default Header;
+ 
