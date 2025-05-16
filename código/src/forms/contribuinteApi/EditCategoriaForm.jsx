@@ -60,6 +60,7 @@ const EditCategoria = ({editFormInitial}) => {
     };
     
     categoriaService.editarCategoria(jsonFinal)
+      // eslint-disable-next-line no-unused-vars
       .then(response => {
         setSuccessMessage(true);
         setFormData(editFormInitial);

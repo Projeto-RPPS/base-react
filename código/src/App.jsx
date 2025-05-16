@@ -12,6 +12,8 @@ import FormularioContribuinte from './forms/contribuinteApi/FormularioContribuin
 import FazerContribuicao from './forms/contribuinteApi/FazerContribuicao'
 import ContribuicaoData from './forms/contribuinteApi/ContribuicaoData'
 import EditCategoriaForm from './forms/contribuinteApi/EditCategoriaForm'
+import LoginPage from './forms/LoginPage';
+import HomeContent from './forms/HomePage'
 import { Routes, Route, Navigate } from 'react-router-dom'
 
 export default function App() {
@@ -26,7 +28,7 @@ export default function App() {
             <div className="main-content pl-sm-3 mt-4">
               <Routes>
                 {/* Rota raiz - redireciona para empréstimos por padrão */}
-                <Route path="/" element={<Navigate to="/emprestimos" replace />} />
+                <Route path="/home" element={<HomeContent />} />
                 
                 {/* Rotas do sistema de empréstimos */}
                 <Route path="/" element={<Navigate to="/emprestimos" replace />} />
@@ -53,6 +55,7 @@ export default function App() {
                     nomeCategoria: "",
                     percentualContribuicao: ""
                 }} />} />
+                <Route path="/login" element={<LoginPage />} />
                 <Route path="/contribuintes/categorias/editar" element={<EditCategoriaForm editFormInitial={{
                     idCategoria: "",
                     nomeCategoria: "",
