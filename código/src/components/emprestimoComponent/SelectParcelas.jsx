@@ -61,7 +61,7 @@ export default function SelectParcelas({
     return {
       key: parcelaNum,
       value: parcelaNum,
-      label: `${parcelaNum}x — ${valorTotal.toLocaleString("pt-BR", {
+      label: `${parcelaNum}° — ${valorTotal.toLocaleString("pt-BR", {
         style: "currency",
         currency: "BRL",
       })}`,

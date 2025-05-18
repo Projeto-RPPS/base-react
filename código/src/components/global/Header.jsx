@@ -55,9 +55,9 @@ export default function Header() {
       icon: "fa-credit-card",
       label: "Empréstimo",
       children: [
-        { id: "criar-emprestimo", icon: "fa-plus-circle", label: "Criar", link: "/emprestimos/criar" },
-        { id: "simular-emprestimo", icon: "fa-calculator", label: "Simular", link: "/emprestimos/simular" },
-        { id: "listar-emprestimos", icon: "fa-list", label: "Empréstimos", link: "/emprestimos" },
+        { id: "criar-emprestimo", icon: "fa-plus-circle", label: "Criar empréstimo", link: "/emprestimos/criar" },
+        { id: "simular-emprestimo", icon: "fa-calculator", label: "Simular empréstimo", link: "/emprestimos/simular" },
+        { id: "listar-emprestimos", icon: "fa-list", label: "Meus empréstimos", link: "/emprestimos" },
       ],
     },
     {
