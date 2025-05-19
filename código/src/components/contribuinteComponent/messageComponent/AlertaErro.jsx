@@ -17,6 +17,7 @@ const AlertaErro = ({ nomeClasse, erro, onClose }) => {
     
     if (erro.response) {
       const { status, data } = erro.response;
+      console.log(erro)
       if (status === 400 && typeof data === 'string') {
         if (data.includes('Erro insert Contribuinte')) {
           mensagemTemp = '. Já existe um contribuinte cadastrado com este CPF.';
