@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Input from "../components/global/Input";
 import AlertaErro from "../components/contribuinteComponent/messageComponent/AlertaErro";
+import authService from "../service/login/authService";
 
 const LoginPage = () => {
   const [cpf, setCpf] = useState("");
@@ -24,16 +25,23 @@ const LoginPage = () => {
     return formattedValue;
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     if (!cpf || !senha) {
       setErro("CPF e senha são obrigatórios");
       return;
     }
-    
-    // Lógica de autenticação aqui
-    // Se autenticação for bem sucedida:
-    navigate("/dashboard"); // ou para a rota apropriada após login
+    try {
+      await authService.login({
+        cpf: cpf.replace(/\D/g, ""),
+        password: senha,
+      });
+      const me = await authService.me();
+      console.log("Usuário logado:", me); // { cpf, role }
+      navigate("/home");
+    } catch (err) {
+      setErro(err.response?.data?.message || "Falha na autenticação");
+    }
   };
 
   const handleCadastroClick = () => {
