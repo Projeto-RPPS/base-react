@@ -46,14 +46,21 @@ export default function SolicitacaoBeneficioPage() {
 
   return (
     <div className="container mt-4">
-      <NavigationRoutes />
+      {/* <NavigationRoutes /> */}
       <div className="main-content pl-sm-3 mt-4">
         {showButton && (
           <>
             <h1>Solicitações de Benefícios</h1>
             <div className="col mb-3">
-              <SecondaryButton label={"Solicitar novo Benefício"} onClick={handleCadastrarClick} />
-            </div>
+              {/* <SecondaryButton label={"Solicitar novo Benefício"} onClick={handleCadastrarClick} /> */}
+                      <button 
+          type="button" 
+          className="br-button primary mr-3"
+          onClick={handleCadastrarClick}
+        >
+          Solicitar novo Benefício
+        </button>
+          </div>
           </>
         )}
 
@@ -62,12 +69,22 @@ export default function SolicitacaoBeneficioPage() {
             <h1>Solicitar Benefício</h1>
             <FormularioSolicitacao onSalvar={handleSalvar} />
             <br />
-            <SecondaryButton label={"Voltar ao menu de Solicitações"} onClick={handleRefreshPage} />
+            {/* <SecondaryButton label={"Voltar ao menu de Solicitações"} onClick={handleRefreshPage} /> */}
+                    <button 
+          type="button" 
+          className="br-button primary mr-3"
+          onClick={handleRefreshPage}
+        >
+          Voltar ao menu de Solicitações
+        </button>
+            
+        <h2 className="mt-4">Solicitações Ativas</h2>
+        <ListaSolicitacoes solicitacoes={solicitacoes} />
           </>
         )}
 
-        <h2 className="mt-4">Solicitações Ativas</h2>
-        <ListaSolicitacoes solicitacoes={solicitacoes} />
+        {/* <h2 className="mt-4">Solicitações Ativas</h2>
+        <ListaSolicitacoes solicitacoes={solicitacoes} /> */}
       </div>
     </div>
   );

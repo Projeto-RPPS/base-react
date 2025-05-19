@@ -5,6 +5,8 @@ import SecondaryButton from "../../components/global/SecundaryButton";
 import solicitacaoService from "../../service/beneficio/solicitacaoService";
 import AlertaErro from "../../components/beneficioComponent/messageComponent/AlertErro";
 import SuccessMessage from "../../components/beneficioComponent/messageComponent/SuccesMessage";
+import SelectBeneficio from "../../components/beneficioComponent/selects/SelectBeneficio";
+
 
 const FormularioSolicitacao = ({ onSalvar }) => {
   const [erro, setErro] = useState(null);
@@ -14,6 +16,7 @@ const FormularioSolicitacao = ({ onSalvar }) => {
     beneficioId: ""
   });
 
+
   // Função para lidar com mudanças nos campos
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -22,6 +25,7 @@ const FormularioSolicitacao = ({ onSalvar }) => {
       [id]: value,
     });
   };
+
 
   // Função para enviar o formulário
   const handleSubmit = async (e) => {
@@ -42,67 +46,81 @@ const FormularioSolicitacao = ({ onSalvar }) => {
     }
   };
 
+
   // Verifica se o formulário está válido
   const isFormValid = () => {
-    return formData.cpf.trim().length === 11 && formData.beneficioId.trim() !== "";
+    return formData.cpf.trim().length === 11 && String(formData.beneficioId).trim() !== "";
   };
 
+
   return (
-    <div className="row justify-content-center">
-      <div className="col-sm-12 col-md-10 col-lg-8">
-        <div className="br-card">
-          <div className="card-header text-center">
-            <h1>Solicitar Benefício</h1>
-          </div>
-          <div className="card-content p-4">
-            {/* Mensagens de sucesso e erro */}
-            {erro && (
-              <AlertaErro nomeClasse="Solicitação de Benefício" erro={erro} onClose={() => setErro(null)} />
-            )}
-            <SuccessMessage 
-              show={successMessage}
-              onClose={() => setSuccessMessage(false)}
-              title="Solicitação realizada!"
-              message="Sua solicitação de benefício foi processada com sucesso."
-            />
+   <div className="row justify-content-center">
+  <div className="col-sm-12 col-md-10 col-lg-8">
+    <div className="br-card">
+      <div className="card-header text-center">
+        <h1>Solicitar Benefício</h1>
+      </div>
+      <div className="card-content p-4">
+        {erro && (
+          <AlertaErro nomeClasse="Solicitação de Benefício" erro={erro} onClose={() => setErro(null)} />
+        )}
+        <SuccessMessage
+          show={successMessage}
+          onClose={() => setSuccessMessage(false)}
+          title="Solicitação realizada!"
+          message="Sua solicitação de benefício foi processada com sucesso."
+        />
 
-            {/* Formulário */}
-            <form onSubmit={handleSubmit} className="form-solicitacao">
-              <fieldset className="br-fieldset mb-4">
-                <legend>Dados da Solicitação</legend>
-                <Input 
-                  id="cpf" 
-                  label="CPF do Solicitante" 
-                  value={formData.cpf} 
-                  onChange={handleChange} 
-                  placeholder="000.000.000-00" 
-                  required 
-                  maxLength={11}
-                />
-                <Input 
-                  id="beneficioId" 
-                  label="ID do Benefício" 
-                  value={formData.beneficioId} 
-                  onChange={handleChange} 
-                  placeholder="Digite o ID do benefício" 
-                  required 
-                />
-              </fieldset>
 
-              <div className="text-end mt-4">
-                <SecondaryButton 
-                  label="Solicitar Benefício" 
-                  type="submit" 
-                  className={`br-button ${isFormValid() ? 'primary' : 'secondary'}`}
-                  disabled={!isFormValid()}
-                />
+        <form onSubmit={handleSubmit} className="form-solicitacao">
+          <fieldset className="br-fieldset mb-4">
+            <legend>Dados da Solicitação</legend>
+
+
+            <div className="row">
+              <Input
+                id="cpf"
+                label="CPF do Solicitante"
+                value={formData.cpf}
+                onChange={handleChange}
+                placeholder="000.000.000-00"
+                required
+                maxLength={11}
+              />
+
+
+              {/* Campo de seleção estilizado como o Input */}
+              <div className="col-md-7 mb-3">
+                <div className="br-input">
+                  {/* <label htmlFor="beneficioId">Selecione o Benefício</label> */}
+                  <SelectBeneficio
+                    value={formData.beneficioId}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
               </div>
-            </form>
+            </div>
+          </fieldset>
+
+
+          <div className="text-end mt-4">
+            <button
+              type="submit"
+              className={`br-button ${isFormValid() ? 'primary' : 'primary mr-3'}`}
+              disabled={!isFormValid()}
+              aria-disabled={!isFormValid()}
+            >
+              {isFormValid() ? 'Solicitar Benefício' : 'Solicitar Beneficio'}
+            </button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
+  </div>
+</div>
   );
 };
+
 
 export default FormularioSolicitacao;

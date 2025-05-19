@@ -1,7 +1,10 @@
 import React from "react";
+import { useNavigate } from "react-router-dom"; // ✅ IMPORTADO AQUI
 import SecondaryButton from "../../components/global/SecundaryButton";
 
 const ListaBeneficios = ({ beneficios, onEditar, onExcluir }) => {
+  const navigate = useNavigate(); // ✅ INICIALIZADO AQUI
+
   return (
     <div className="br-card mt-4">
       <div className="card-header">
@@ -15,18 +18,20 @@ const ListaBeneficios = ({ beneficios, onEditar, onExcluir }) => {
                 <div>
                   <strong>{beneficio.tipo}</strong>: {beneficio.descricao} 
                   <br />
-                  <span className="text-muted">Mínimo: {beneficio.tempoMinimoMeses} meses - Percentual: {beneficio.percentualBaseMedioContribuicoes}%</span>
+                  <span className="text-muted">
+                    Mínimo: {beneficio.tempoMinimoMeses} meses - Percentual: {beneficio.percentualBaseMedioContribuicoes}%
+                  </span>
                 </div>
                 <div className="d-flex gap-2">
                   {onEditar && (
-                    <SecondaryButton 
-                      label="Editar" 
-                      onClick={() => onEditar(beneficio)}
+                    <SecondaryButton
+                      label="Editar"
+                      onClick={() => navigate(`/beneficios/editar/${beneficio.idBeneficio}`)}
                     />
                   )}
                   {onExcluir && (
-                    <SecondaryButton 
-                      label="Desativar" 
+                    <SecondaryButton
+                      label="Desativar"
                       onClick={() => onExcluir(beneficio.idBeneficio)}
                     />
                   )}

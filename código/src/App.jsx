@@ -7,6 +7,7 @@ import NavigationRoutes from './components/global/NavigationRoutes';
 
 import BeneficiosPage from './pages/BeneficiosPage';
 import SolicitacaoBeneficioPage from './pages/SolicitacaoBeneficioPage'
+import EditarBeneficioPage from './pages/EditarBeneficioPage';
 
 export default function App() {
   return (
@@ -17,10 +18,11 @@ export default function App() {
           <div className="container-fluid d-flex">
             <div className="col mb-5">
               <NavigationRoutes />
-              <div className="main-content pl-sm-3 mt-4" id="main-content">
+              <div className="main-content pl-sm-3 mt-4">
                 <Routes>
                   <Route path="/beneficios" element={<BeneficiosPage />} />
-                  <Route path="/solicitacao-beneficios" element={<SolicitacaoBeneficioPage />} /> 
+                  <Route path="/solicitacao-beneficios" element={<SolicitacaoBeneficioPage />} />
+                  <Route path="/beneficios/editar/:id" element={<EditarBeneficioPage />} /> 
                 </Routes>
               </div>
             </div>
