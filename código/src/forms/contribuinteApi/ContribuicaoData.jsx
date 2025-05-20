@@ -168,7 +168,7 @@ const ContribuicaoData = () => {
 
               {erro && (
                 <AlertaErro 
-                  nomeClasse="Contribuições" 
+                  nomeClasse="ao buscar histórico de contribuições" 
                   erro={erro} 
                   onClose={() => setErro(null)} 
                 />
