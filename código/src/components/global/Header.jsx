@@ -74,35 +74,35 @@ export default function Header() {
     label: "Benefícios",
     children: [
       {
-        id: "listar-beneficios",
-        icon: "fa-list",           // ícone de lista
-        label: "Listar Benefícios",
-        link: "/beneficios"
+        id: "cadastrar-beneficios",
+        icon: "fa-plus",           // ícone de lista
+        label: "Cadastrar Benefícios",
+        link: "/beneficios/cadastrar"
       },
       {
-        id: "detalhar-beneficio",
-        icon: "fa-info-circle",    // ícone de informação
-        label: "Detalhar Benefício",
-        link: "/beneficios/:id"
+        id: "editar-beneficio",
+        icon: "fa-edit",    // ícone de informação
+        label: "Editar Benefício",
+        link: "/beneficios/editar"
       }
     ]
   },
     {
       id: "solicitarBeneficio",
-      icon: "fa-file-medical",      // ícone de formulário
+      icon: "fa-plus",      // ícone de formulário
       label: "Solicitar Benefício",
       children: [
         {
           id: "nova-solicitacao",
           icon: "fa-edit",           // ícone de edição
           label: "Nova Solicitação",
-          link: "/beneficios/solicitar"
+          link: "/solicitacao-beneficios"
         },
         {
           id: "historico-solicitacoes",
           icon: "fa-history",        // ícone de histórico
           label: "Histórico de Solicitações",
-          link: "/beneficios/solicitar/historico"
+          link: "/beneficios/solicitacao/historico"
         }
       ]
     },

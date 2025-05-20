@@ -11,6 +11,13 @@ import FormularioContribuinte from './forms/contribuinteApi/FormularioContribuin
 import FazerContribuicao from './forms/contribuinteApi/FazerContribuicao'
 import ContribuicaoData from './forms/contribuinteApi/ContribuicaoData'
 import EditCategoriaForm from './forms/contribuinteApi/EditCategoriaForm'
+import FormularioBeneficio from './forms/beneficioApi/FormularioBeneficio'
+import FormularioSolicitacao from './forms/beneficioApi/FormularioSolicitacao'
+import BeneficiosPage from  './forms/beneficioApi/pages/BeneficiosPage'
+import SolicitacaoBeneficioPage from './forms/beneficioApi/pages/SolicitacaoBeneficioPage'
+import EditarBeneficioPage from './forms/beneficioApi/pages/EditarBeneficioPage'
+import HistoricoSolicitacoesPage from './forms/beneficioApi/pages/HistoricoSolicitacaoPage'
+import BeneficiosAtivosPage from './forms/beneficioApi/pages/BeneficiosAtivosPage'
 import LoginPage from './forms/LoginPage';
 import HomeContent from './forms/HomePage'
 import { Routes, Route, Navigate } from 'react-router-dom'
@@ -24,7 +31,17 @@ export default function App() {
         <div className="container-fluid d-flex">
           <div className="col mb-5">
             <div className="main-content pl-sm-3 mt-4">
+
               <Routes>
+              
+              {/* Rotas de Benefícios */}
+                <Route path="/beneficios/editar" element={<BeneficiosAtivosPage />} />
+                <Route path="/beneficios/cadastrar" element={<FormularioBeneficio onSalvar={() => {}} />} />
+                <Route path="/beneficios/editar/:id" element={<EditarBeneficioPage />} />
+                <Route path="/solicitacao-beneficios" element={<FormularioSolicitacao onSalvar={() => {}} />} />
+                <Route path="/beneficios/solicitacao/historico" element={<HistoricoSolicitacoesPage />} />
+
+
                 <Route path="/" element={<Navigate to="/home" replace />} />
                 <Route path="/home" element={<HomeContent />} />
                 <Route path="/emprestimos" element={<LoanList />} />

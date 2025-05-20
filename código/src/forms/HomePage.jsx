@@ -107,7 +107,7 @@ const HomeContent = () => {
                 <button
                   type="button"
                   className="br-button primary block"
-                  onClick={() => navigate('/beneficios')}
+                  onClick={() => navigate('/beneficios/cadastrar')}
                 >
                   Acessar
                 </button>
