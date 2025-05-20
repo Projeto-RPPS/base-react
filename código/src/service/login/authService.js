@@ -14,9 +14,7 @@ export default {
    * @param {{cpf: string, password: string}}
    */
   async login({ cpf, password }) {
-    const { data } = await api.post('/auth/login', { cpf, password });
-    setToken(data.access_token);
-    return data;
+    await api.post('/auth/login', { cpf, password });
   },
 
   /**
@@ -27,7 +25,7 @@ export default {
     return data; // { cpf, role }
   },
 
-  logout() {
-    setToken(null);
-  },
+  async logout() {
+   await api.post('/auth/logout');
+ },
 };

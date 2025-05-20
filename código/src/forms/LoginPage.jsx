@@ -84,7 +84,7 @@ const LoginPage = () => {
 
                 {erro && (
                   <AlertaErro
-                    nomeClasse={"ao fazer login"}
+                    nomeClasse={""}
                     erro={erro}
                     onClose={() => setErro(null)}
                   />
