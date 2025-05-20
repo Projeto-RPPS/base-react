@@ -1,13 +1,19 @@
 // src/components/Header.jsx
 import React, { useState, useEffect, useRef } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import authService from "../../service/login/authService";
+import contribuinteService from "../../service/contribuinte/contribuinteService";
+import Avatar from "./Avatar";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openMenus, setOpenMenus] = useState({});
+  const [user, setUser] = useState(null);
+  const [contrib, setContrib] = useState(null);
   const menuRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Fecha menu ao clicar fora
   useEffect(() => {
@@ -19,6 +25,23 @@ export default function Header() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    authService
+      .me()
+      .then(u => {
+        setUser(u);
+        if (u.role === "user") {
+          return contribuinteService
+            .pesquisarContribuinte(u.cpf)
+            .then(r => {
+              // assume que r.data é o objeto Contribuinte
+              setContrib(r.data);
+            });
+        }
+      })
+      .catch(() => setUser(null));
+  }, [location.pathname]);
 
   const toggleMenu = () => setIsMenuOpen(m => !m);
   const toggleSubmenu = id =>
@@ -108,6 +131,15 @@ export default function Header() {
     },
   ];
 
+  // define letra e cor do avatar conforme role
+  const initial = user?.role === "admin"
+    ? "A"
+    : contrib?.nomeCivil?.charAt(0) ?? "";
+
+  const avatarColorClass = user?.role === "admin"
+    ? "bg-gray-50 text-pure-0"
+    : "bg-violet-50 text-pure-0";
+
   return (
     <>
       {/* === HEADER COMPACTO === */}
@@ -173,8 +205,8 @@ export default function Header() {
               <a href="/contribuicoes">Contribuição</a>
               <a href="/emprestimos">Empréstimo</a>
               <a href="/margem">Margem Consignável</a>
-              <a href="#">Benefício</a>
-              <a href="#">Solicitar Benefício</a>
+              <a href="/beneficios/cadastrar">Benefício</a>
+              <a href="/solicitacao-beneficios">Solicitar Benefício</a>
 
               <span
                 className="br-divider vertical"
@@ -185,16 +217,40 @@ export default function Header() {
                 }}
               />
 
-              <button
-                className="br-sign-in small"
-                type="button"
-                onClick={() => {setIsMenuOpen(false);
-                  navigate("/login");}
-                }
-              >
-                <i className="fas fa-user" aria-hidden="true" />
-                <span className="d-sm-inline">Entrar</span>
-              </button>
+                  {user ? (
+                    <>
+                      <Avatar
+                        letter={initial}
+                        title={user.role === "admin" ? "Administrador" : contrib?.nomeCivil}
+                        size="small"                 // ou "medium" se preferir um avatar um pouco maior
+                        colorClass={avatarColorClass} // ex: "bg-gray-50 text-pure-0" ou "bg-violet-50 text-pure-0"
+                      />
+                      <button
+                        className="br-button circle small"
+                        type="button"
+                        onClick={() => {
+                          authService.logout();
+                          setUser(null);
+                          navigate("/login");
+                        }}
+                        aria-label="Sair"
+                      >
+                        <i className="fas fa-sign-out-alt" />
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      className="br-sign-in small"
+                      type="button"
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        navigate("/login");
+                      }}
+                    >
+                      <i className="fas fa-user" aria-hidden="true" />
+                      <span className="d-sm-inline">Entrar</span>
+                    </button>
+                  )}
             </nav>
           </div>
         </div>
