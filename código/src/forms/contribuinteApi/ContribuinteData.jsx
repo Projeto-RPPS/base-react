@@ -19,6 +19,7 @@ const ContribuinteData = () => {
   const [clicado, setClicado] = useState(false);
   const [desativando, setDesativando] = useState(false);
   const [userRole, setUserRole] = useState(null);
+  const [userCpf, setUserCpf] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,6 +31,12 @@ const ContribuinteData = () => {
           return;
         }
         setUserRole(u.role);
+        setUserCpf(u.cpf);
+        
+        // Se for user, carrega automaticamente seus dados (sem preencher o input)
+        if (u.role === "user") {
+          pesquisarContribuinte(null, u.cpf);
+        }
       })
       .catch(() => {
         navigate("/home");
@@ -79,10 +86,10 @@ const ContribuinteData = () => {
       });
   };
 
-  const pesquisarContribuinte = (e) => {
-    e.preventDefault();
+  const pesquisarContribuinte = (e, cpfToSearch = null) => {
+    if (e) e.preventDefault();
 
-    const cpfSemFormatacao = cpf.replace(/\D/g, '');
+    const cpfSemFormatacao = cpfToSearch ? cpfToSearch.replace(/\D/g, '') : cpf.replace(/\D/g, '');
 
     if (cpfSemFormatacao.length !== 11) {
       setErro({ message: "CPF deve conter exatamente 11 dígitos" });
@@ -100,7 +107,10 @@ const ContribuinteData = () => {
         setClicado(false);
         setContribuinte(response.data);
         setSuccessMessage(true);
-        setCpf("");
+        // Não limpa o CPF se for pesquisa manual
+        if (!cpfToSearch) {
+          setCpf("");
+        }
       })
       .catch((error) => {
         console.error("Erro ao pesquisar contribuinte:", error);
