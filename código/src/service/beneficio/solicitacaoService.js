@@ -40,7 +40,19 @@ export const desativarSolicitacao = (id) => {
     });
 };
 
+export const listarSolicitacoesAtivas = () => {
+  return axios.get(`${API_URL}/ativas`)
+    .then(response => response.data)
+    .catch(error => {
+      throw error.response ? error.response.data : "Erro ao conectar com o servidor.";
+    });
+};
+
+
+
 export default {
+
+  listarSolicitacoesAtivas,
   criarSolicitacao,
   listarSolicitacoes,
   listarSolicitacoesPorCpf,

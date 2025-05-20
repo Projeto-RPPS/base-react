@@ -1,85 +1,347 @@
-import React from "react";
+// src/components/Header.jsx
+import React, { useState, useEffect, useRef } from "react";
+import { NavLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-export default function Header({titulo, subtitulo}) {
-    return(
-        <><nav className="br-skiplink" role="menubar"><a className="br-item" href="#main-content" role="menuitem" accessKey="1">Ir para o conteúdo <span aria-hidden="true">(1/4)</span> <span aria-hidden="true" className="br-tag text ml-1">1</span></a><a className="br-item" href="#header-navigation" role="menuitem" accessKey="2">Ir para o menu <span aria-hidden="true">(2/4)</span> <span aria-hidden="true" className="br-tag text ml-1">2</span></a><a className="br-item" href="#main-searchbox" role="menuitem" accessKey="3">Ir para a busca <span aria-hidden="true">(3/4)</span> <span aria-hidden="true" className="br-tag text ml-1">3</span></a><a className="br-item" href="#footer" role="menuitem" accessKey="4">Ir para o rodapé <span aria-hidden="true">(4/4)</span> <span aria-hidden="true" className="br-tag text ml-1">4</span></a>
-        </nav><header className="br-header mb-4" id="header" data-sticky="data-sticky">
-                <div className="container-fluid">
-                    <div className="header-top">
-                        <div className="header-logo"><img src="data:image/png;base64,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" alt="logo" /><span className="br-divider vertical"></span>
-                            <div className="header-sign">Assinatura</div>
-                        </div>
-                        <div className="header-actions">
-                            <div className="header-links dropdown">
-                                <button className="br-button circle small" type="button" data-toggle="dropdown" aria-label="Abrir Acesso Rápido"><i className="fas fa-ellipsis-v" aria-hidden="true"></i>
-                                </button>
-                                <div className="br-list">
-                                    <div className="header">
-                                        <div className="title">Acesso Rápido</div>
-                                    </div><a className="br-item" href="javascript:void(0)">Link de acesso 1</a><a className="br-item" href="javascript:void(0)">Link de acesso 2</a><a className="br-item" href="javascript:void(0)">Link de acesso 3</a><a className="br-item" href="javascript:void(0)">Link de acesso 4</a>
-                                </div>
-                            </div><span className="br-divider vertical mx-half mx-sm-1"></span>
-                            <div className="header-functions dropdown">
-                                <button className="br-button circle small" type="button" data-toggle="dropdown" aria-label="Abrir Funcionalidades do Sistema"><i className="fas fa-th" aria-hidden="true"></i>
-                                </button>
-                                <div className="br-list">
-                                    <div className="header">
-                                        <div className="title">Funcionalidades do Sistema</div>
-                                    </div>
-                                    <div className="br-item">
-                                        <button className="br-button circle small" type="button" aria-label="Funcionalidade 1"><i className="fas fa-chart-bar" aria-hidden="true"></i><span className="text">Funcionalidade 1</span>
-                                        </button>
-                                    </div>
-                                    <div className="br-item">
-                                        <button className="br-button circle small" type="button" aria-label="Funcionalidade 2"><i className="fas fa-headset" aria-hidden="true"></i><span className="text">Funcionalidade 2</span>
-                                        </button>
-                                    </div>
-                                    <div className="br-item">
-                                        <button className="br-button circle small" type="button" aria-label="Funcionalidade 3"><i className="fas fa-comment" aria-hidden="true"></i><span className="text">Funcionalidade 3</span>
-                                        </button>
-                                    </div>
-                                    <div className="br-item">
-                                        <button className="br-button circle small" type="button" aria-label="Funcionalidade 4"><i className="fas fa-adjust" aria-hidden="true"></i><span className="text">Funcionalidade 4</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="header-search-trigger">
-                                <button className="br-button circle" type="button" aria-label="Abrir Busca" data-toggle="search" data-target=".header-search"><i className="fas fa-search" aria-hidden="true"></i>
-                                </button>
-                            </div>
-                            <div className="header-login">
-                                <div className="header-sign-in">
-                                    <button className="br-sign-in small" type="button" data-trigger="login"><i className="fas fa-user" aria-hidden="true"></i><span className="d-sm-inline">Entrar</span>
-                                    </button>
-                                </div>
-                                <div className="header-avatar"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="header-bottom">
-                        <div className="header-menu">
-                            <div className="header-menu-trigger" id="header-navigation">
-                                <button className="br-button small circle" type="button" aria-label="Menu" data-toggle="menu" data-target="#main-navigation" id="navigation"><i className="fas fa-bars" aria-hidden="true"></i>
-                                </button>
-                            </div>
-                            <div className="header-info">
-                                <div className="header-title">{titulo}</div>
-                                <div className="header-subtitle">{subtitulo}</div>
-                            </div>
-                        </div>
-                        <div className="header-search" id="main-searchbox">
-                            <div className="br-input has-icon">
-                                <label htmlFor="searchbox">Texto da pesquisa</label>
-                                <input id="searchbox" type="text" placeholder="O que você procura?" />
-                                <button className="br-button circle small" type="button" aria-label="Pesquisar"><i className="fas fa-search" aria-hidden="true"></i>
-                                </button>
-                            </div>
-                            <button className="br-button circle search-close ml-1" type="button" aria-label="Fechar Busca" data-dismiss="search"><i className="fas fa-times" aria-hidden="true"></i>
-                            </button>
-                        </div>
-                    </div>
+export default function Header() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [openMenus, setOpenMenus] = useState({});
+  const menuRef = useRef(null);
+  const navigate = useNavigate();
+
+  // Fecha menu ao clicar fora
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setIsMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const toggleMenu = () => setIsMenuOpen(m => !m);
+  const toggleSubmenu = id =>
+    setOpenMenus(o => ({ ...o, [id]: !o[id] }));
+
+  const menuItems = [
+    {
+      id: "home",
+      icon: "fa-home",
+      label: "Home",
+      link: "/home",
+    },
+    {
+      id: "contribuinte",
+      icon: "fa-users",
+      label: "Contribuinte",
+      children: [
+        { id: "fazer-contribuicao", icon: "fa-hand-holding-heart", label: "Fazer Contribuição", link: "/contribuicoes" },
+        { id: "listar-contribuintes", icon: "fa-user", label: "Contribuintes", link: "/contribuintes" },
+        { id: "historico-contribuicoes", icon: "fa-history", label: "Histórico", link: "/contribuicoes/historico" },
+      ],
+    },
+    {
+      id: "categoria",
+      icon: "fa-tags",
+      label: "Categoria",
+      children: [
+        { id: "cadastrar-categoria", icon: "fa-plus", label: "Cadastrar Categoria", link: "/contribuintes/categorias" },
+        { id: "editar-categoria", icon: "fa-edit", label: "Editar Categoria", link: "/contribuintes/categorias/editar" },
+      ],
+    },
+    {
+      id: "emprestimo",
+      icon: "fa-credit-card",
+      label: "Empréstimo",
+      children: [
+        { id: "criar-emprestimo", icon: "fa-plus-circle", label: "Criar empréstimo", link: "/emprestimos/criar" },
+        { id: "simular-emprestimo", icon: "fa-calculator", label: "Simular empréstimo", link: "/emprestimos/simular" },
+        { id: "listar-emprestimos", icon: "fa-list", label: "Meus empréstimos", link: "/emprestimos" },
+      ],
+    },
+    {
+      id: "margem",
+      icon: "fa-balance-scale",
+      label: "Margem Consignável",
+      children: [
+        { id: "simular-margem", icon: "fa-sliders-h", label: "Margem", link: "/margem" },
+      ],
+    },
+    {
+    id: "beneficios",
+    icon: "fa-gift",               // ícone de presente
+    label: "Benefícios",
+    children: [
+      {
+        id: "cadastrar-beneficios",
+        icon: "fa-plus",           // ícone de lista
+        label: "Cadastrar Benefícios",
+        link: "/beneficios/cadastrar"
+      },
+      {
+        id: "editar-beneficio",
+        icon: "fa-edit",    // ícone de informação
+        label: "Editar Benefício",
+        link: "/beneficios/editar"
+      }
+    ]
+  },
+    {
+      id: "solicitarBeneficio",
+      icon: "fa-plus",      // ícone de formulário
+      label: "Solicitar Benefício",
+      children: [
+        {
+          id: "nova-solicitacao",
+          icon: "fa-edit",           // ícone de edição
+          label: "Nova Solicitação",
+          link: "/solicitacao-beneficios"
+        },
+        {
+          id: "historico-solicitacoes",
+          icon: "fa-history",        // ícone de histórico
+          label: "Histórico de Solicitações",
+          link: "/beneficios/solicitacao/historico"
+        }
+      ]
+    },
+  ];
+
+  return (
+    <>
+      {/* === HEADER COMPACTO === */}
+      <header className="br-header compact">
+        <div
+          className="container-lg"
+          style={{
+            maxWidth: "100%",
+            paddingLeft: "4rem",
+            paddingRight: "4rem",
+            paddingBottom: "0.5rem",
+          }}
+        >
+          {/* topo: logo + assinatura */}
+          <div className="header-top">
+            <div className="header-logo">
+              <img
+                src="https://www.gov.br/ds/assets/img/govbr-logo.png"
+                alt="gov.br"
+              />
+              <span className="br-divider vertical" />
+              <div className="header-sign">Assinatura</div>
+            </div>
+          </div>
+
+          {/* bottom: menu + título + links + Entrar */}
+          <div
+            className="header-bottom"
+            style={{ display: "flex", alignItems: "center" }}
+          >
+            {/* botão de menu e título */}
+            <div
+              className="header-menu"
+              style={{ display: "flex", alignItems: "center" }}
+            >
+              {!isMenuOpen && (
+                <div className="header-menu-trigger">
+                  <button
+                    className="br-button small circle"
+                    type="button"
+                    aria-label="Menu principal"
+                    onClick={toggleMenu}
+                  >
+                    <i className="fas fa-bars" aria-hidden="true" />
+                  </button>
                 </div>
-            </header></>
-    );
+              )}
+              <div className="header-info" style={{ marginLeft: "1rem" }}>
+                <div className="header-title">RPPS</div>
+              </div>
+            </div>
+
+            {/* links de acesso + divider + botão Entrar */}
+            <nav
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "1.5rem",
+                marginLeft: "auto",
+              }}
+            >
+              <a href="/contribuintes">Contribuintes</a>
+              <a href="/contribuicoes">Contribuição</a>
+              <a href="/emprestimos">Empréstimo</a>
+              <a href="/margem">Margem Consignável</a>
+              <a href="#">Benefício</a>
+              <a href="#">Solicitar Benefício</a>
+
+              <span
+                className="br-divider vertical"
+                style={{
+                  margin: "0 0.75rem",
+                  height: "1.75rem",
+                  alignSelf: "center",
+                }}
+              />
+
+              <button
+                className="br-sign-in small"
+                type="button"
+                onClick={() => {setIsMenuOpen(false);
+                  navigate("/login");}
+                }
+              >
+                <i className="fas fa-user" aria-hidden="true" />
+                <span className="d-sm-inline">Entrar</span>
+              </button>
+            </nav>
+          </div>
+        </div>
+      </header>
+
+      {/* === MENU LATERAL SOBREPOSTO === */}
+      {isMenuOpen && (
+        <div
+          ref={menuRef}
+          className="br-menu"
+          style={{
+            display: "flex",
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 9999,
+          }}
+        >
+          {/* scrim */}
+          <div
+            className="menu-scrim"
+            onClick={toggleMenu}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "var(--surface-overlay-scrim)",
+            }}
+          />
+
+          <div
+            className="menu-panel"
+            style={{
+              position: "relative",
+              width: "320px",
+              flex: "none",
+              borderRight: "1px solid var(--border-color)",
+            }}
+          >
+            <div className="menu-header">
+              <div
+                className="menu-title"
+                style={{ display: "flex", alignItems: "center" }}
+              >
+                <img
+                  src="https://www.gov.br/ds/assets/img/govbr-logo.png"
+                  alt="gov.br"
+                  style={{
+                    width: 30,
+                    height: 30,
+                    objectFit: "contain",
+                    marginRight: 12,
+                  }}
+                />
+                <span>RPPS</span>
+              </div>
+              <button
+                className="br-button circle"
+                type="button"
+                aria-label="Fechar menu"
+                onClick={toggleMenu}
+              >
+                <i className="fas fa-times" aria-hidden="true" />
+              </button>
+            </div>
+
+            <div
+              className="menu-body"
+              style={{
+                overflowY: "auto",
+                maxHeight: "calc(100vh - 120px)",
+                padding: "0rem",
+              }}
+            >
+              <ul>
+                {menuItems.map(item =>
+                  item.children ? (
+                    <li
+                      key={item.id}
+                      className={`drop-menu${openMenus[item.id] ? " active" : ""}`}
+                    >
+                      <a
+                        href="#"
+                        className="menu-item"
+                        onClick={e => {
+                          e.preventDefault();
+                          toggleSubmenu(item.id);
+                        }}
+                      >
+                        <span className="icon">
+                          <i className={`fas ${item.icon}`} />
+                        </span>
+                        <span className="content">{item.label}</span>
+                        <span className="support">
+                          <i className="fas fa-angle-down" />
+                        </span>
+                      </a>
+                      <ul style={{ paddingLeft: "var(--spacing-scale-3x)" }}>
+                        {item.children.map(ch => (
+                          <li key={ch.id}>
+                            <NavLink
+                              to={ch.link}
+                              end
+                              className="menu-item"
+                              onClick={() => setIsMenuOpen(false)}
+                            >
+                              <span className="icon">
+                                <i className={`fas ${ch.icon}`} />
+                              </span>
+                              <span className="content">{ch.label}</span>
+                            </NavLink>
+                          </li>
+                        ))}
+                      </ul>
+                    </li>
+                  ) : (
+                    <li key={item.id}>
+                      <NavLink
+                        to={item.link}
+                        end
+                        className="menu-item"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <span className="icon">
+                          <i className={`fas ${item.icon}`} />
+                        </span>
+                        <span className="content">{item.label}</span>
+                      </NavLink>
+                    </li>
+                  )
+                )}
+              </ul>
+            </div>
+
+            <div
+              className="menu-footer"
+              style={{ borderTop: "1px solid var(--border-color)" }}
+            >
+              
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
 }

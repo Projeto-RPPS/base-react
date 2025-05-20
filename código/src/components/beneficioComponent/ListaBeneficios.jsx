@@ -1,9 +1,9 @@
 import React from "react";
-import { useNavigate } from "react-router-dom"; // ✅ IMPORTADO AQUI
+import { useNavigate } from "react-router-dom"; // IMPORTADO AQUI
 import SecondaryButton from "../../components/global/SecundaryButton";
 
 const ListaBeneficios = ({ beneficios, onEditar, onExcluir }) => {
-  const navigate = useNavigate(); // ✅ INICIALIZADO AQUI
+  const navigate = useNavigate(); //  INICIALIZADO AQUI
 
   return (
     <div className="br-card mt-4">

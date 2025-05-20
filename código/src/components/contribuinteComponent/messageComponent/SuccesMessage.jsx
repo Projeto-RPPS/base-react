@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 const SuccessMessage = ({ 
   title, 
@@ -6,6 +6,18 @@ const SuccessMessage = ({
   onClose,
   show = true
 }) => {
+  useEffect(() => {
+    if (!show || !onClose) return;
+    
+    // Configura o temporizador para fechar automaticamente após 3 segundos
+    const timer = setTimeout(() => {
+      onClose();
+    }, 5000);
+
+    // Limpa o temporizador quando o componente for desmontado
+    return () => clearTimeout(timer);
+  }, [show, onClose]);
+
   if (!show) return null;
 
   return (

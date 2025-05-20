@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { listarSolicitacoes, criarSolicitacao } from "../service/beneficio/solicitacaoService";
-import FormularioSolicitacao from "../forms/beneficioApi/FormularioSolicitacao";
-import SecondaryButton from "../components/global/SecundaryButton";
-import ListaSolicitacoes from "../components/beneficioComponent/ListaSolicitacoes";
-import NavigationRoutes from "../components/global/NavigationRoutes";
+import { listarSolicitacoes, criarSolicitacao } from "../../../service/beneficio/solicitacaoService";
+import FormularioSolicitacao from "../FormularioSolicitacao";
+import SecondaryButton from "../../../components/global/SecundaryButton";
+import ListaSolicitacoes from "../../../components/beneficioComponent/ListaSolicitacoes";
+
 
 export default function SolicitacaoBeneficioPage() {
   const [solicitacoes, setSolicitacoes] = useState([]);
@@ -43,6 +43,8 @@ export default function SolicitacaoBeneficioPage() {
     setShowButton(true);
     carregarSolicitacoes();
   };
+
+
 
   return (
     <div className="container mt-4">

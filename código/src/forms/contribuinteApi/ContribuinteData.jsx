@@ -15,23 +15,58 @@ const ContribuinteData = () => {
   const [exibirTabela, setExibirTabela] = useState(false);
   const [cpfSalvo, setCpfSalvo] = useState(null);
   const [clicado, setClicado] = useState(false);
+  const [desativando, setDesativando] = useState(false);
 
-  const handleCpfChange = (e) => {
-    const value = e.target.value.replace(/\D/g, "").slice(0, 11);
-    setCpf(value);
+  // Função para formatar o CPF durante a digitação
+  const formatCPF = (value) => {
+    const numericValue = value.replace(/\D/g, '');
+    const limitedValue = numericValue.slice(0, 11);
+    
+    let formattedValue = limitedValue;
+    if (limitedValue.length > 9) {
+      formattedValue = `${limitedValue.slice(0, 3)}.${limitedValue.slice(3, 6)}.${limitedValue.slice(6, 9)}-${limitedValue.slice(9)}`;
+    } else if (limitedValue.length > 6) {
+      formattedValue = `${limitedValue.slice(0, 3)}.${limitedValue.slice(3, 6)}.${limitedValue.slice(6)}`;
+    } else if (limitedValue.length > 3) {
+      formattedValue = `${limitedValue.slice(0, 3)}.${limitedValue.slice(3)}`;
+    }
+    
+    return formattedValue;
   };
 
-    const handleClick = (contribuinteCpf) => {
-        setClicado(true);
-        if (contribuinteCpf) setExibirTabela(true);
-        setCpfSalvo(contribuinteCpf);
-    };
+  const handleCpfChange = (e) => {
+    const formattedValue = formatCPF(e.target.value);
+    setCpf(formattedValue);
+  };
+
+  const handleClick = (contribuinteCpf) => {
+    setClicado(true);
+    if (contribuinteCpf) setExibirTabela(true);
+    setCpfSalvo(contribuinteCpf);
+  };
+
+  const desativarContribuinte = (cpf) => {
+    setDesativando(true);
+    contribuinteService.desativarContribuinte(cpf.replace(/\D/g, ''))
+      .then(() => {
+        setSuccessMessage(true);
+        setContribuinte(prev => ({ ...prev, isAtivo: false }));
+      })
+      .catch(error => {
+        setErro(error);
+      })
+      .finally(() => {
+        setDesativando(false);
+      });
+  };
 
   const pesquisarContribuinte = (e) => {
     e.preventDefault();
 
-    if (cpf.length !== 11) {
-      setErro("CPF deve conter exatamente 11 dígitos");
+    const cpfSemFormatacao = cpf.replace(/\D/g, '');
+
+    if (cpfSemFormatacao.length !== 11) {
+      setErro({ message: "CPF deve conter exatamente 11 dígitos" });
       return;
     }
 
@@ -40,19 +75,17 @@ const ContribuinteData = () => {
     setContribuinte(null);
 
     contribuinteService
-      .pesquisarContribuinte(cpf)
+      .pesquisarContribuinte(cpfSemFormatacao)
       .then((response) => {
-        setExibirTabela(false)
-        setClicado(false)
+        setExibirTabela(false);
+        setClicado(false);
         setContribuinte(response.data);
         setSuccessMessage(true);
         setCpf("");
       })
       .catch((error) => {
         console.error("Erro ao pesquisar contribuinte:", error);
-        setErro(
-          error.response?.data?.message || "Contribuinte não encontrado"
-        );
+        setErro(error);
       })
       .finally(() => {
         setLoading(false);
@@ -61,136 +94,122 @@ const ContribuinteData = () => {
 
   return (
     <div className="row justify-content-center">
-    <div className="col-sm-10 col-md-8 col-lg-6">
-      <div className="br-card">
-        <div className="card-header text-center">
+      <div className="col-sm-10 col-md-8 col-lg-6">
+        <div className="br-card">
+          <div className="card-header text-center">
             <h1>Pesquisar Contribuintes</h1>
-        </div>
-        <div className="card-content p-4">
-          <div className="br-form">
-            <form onSubmit={pesquisarContribuinte} noValidate>
-              <fieldset className="br-fieldset mb-1">
-                <legend>Pesquisar Contribuinte</legend>
-                <Input
-                  id="cpf"
-                  label="CPF"
-                  value={cpf}
-                  onChange={handleCpfChange}
-                  placeholder="Digite o CPF (apenas números)"
-                  required
-                  maxLength={11}
-                  pattern="\d{11}"
-                  className="col-12"
-                />
-              </fieldset>
+          </div>
+          <div className="card-content p-4">
+            <div className="br-form">
+              <form onSubmit={pesquisarContribuinte} noValidate>
+                <fieldset className="br-fieldset mb-1">
+                  <legend>Pesquisar Contribuinte</legend>
+                  <Input
+                    id="cpf"
+                    label="CPF"
+                    value={cpf}
+                    onChange={handleCpfChange}
+                    placeholder="000.000.000-00"
+                    required
+                    maxLength={14}
+                    className="col-12"
+                  />
+                </fieldset>
   
-              <div className="d-flex justify-content-end">
-                <button
-                  type="submit"
-                  className="br-button primary"
-                  disabled={loading || cpf.length !== 11}
-                >
-                  <span className="br-label">
-                    {loading ? "Pesquisando..." : "Pesquisar"}
-                  </span>
-                </button>
-              </div>
-            </form>
-  
-            {erro && (
-              <div className="br-message danger mt-4">
-                <div className="icon">
-                  <i className="fas fa-times-circle fa-lg" aria-hidden="true" />
-                </div>
-                <div className="content" role="alert">
-                  <span className="message-title">Erro </span>
-                  <span className="message-body">{erro}</span>
-                </div>
-                <div className="close">
+                <div className="d-flex justify-content-end">
                   <button
-                    className="br-button circle small"
-                    onClick={() => setErro(null)}
+                    type="submit"
+                    className="br-button primary"
+                    disabled={loading || cpf.replace(/\D/g, '').length !== 11}
                   >
-                    <i className="fas fa-times" aria-hidden="true" />
+                    <span className="br-label">
+                      {loading ? "Pesquisando..." : "Pesquisar"}
+                    </span>
                   </button>
                 </div>
-              </div>
-            )}
+              </form>
+              <br></br>
+              <AlertaErro 
+                nomeClasse="ao pesquisar contribuinte" 
+                erro={erro} 
+                onClose={() => setErro(null)} 
+              />
   
-            {contribuinte && (
-              <><div className="br-list mt-4">
-                                  <div className="br-item">
-                                      <div className="row">
-                                          <div className="col-md-6">
-                                              <strong>Nome Civil:</strong> {contribuinte.nomeCivil}
-                                          </div>
-                                          <div className="col-md-6">
-                                              <strong>Nome Social:</strong>{" "}
-                                              {contribuinte.nomeSocial || "Não informado"}
-                                          </div>
-                                      </div>
-                                      <div className="row mt-2">
-                                          <div className="col-md-6">
-                                              <strong>CPF:</strong>{" "}
-                                              {contribuinte.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")}
-                                          </div>
-                                          <div className="col-md-6">
-                                              <strong>Status:</strong>
-                                              <span
-                                                  className={`br-tag ${contribuinte.isAtivo ? "success" : "danger"} ml-2`}
-                                              >
-                                                  {contribuinte.isAtivo ? "Ativo" : "Inativo"}
-                                              </span>
-                                          </div>
-                                      </div>
-                                  </div>
-                              </div>
-                              <br></br>
-                              {!clicado && (
-                                <div className="d-flex justify-content-end">
-                                        <div className="col-md-5">
-                                          <SecondaryButton label={"Gerar Árvore Genealógica"} onClick={() => handleClick(contribuinte.cpf)} />
-                                        </div>
-                                  </div>
-                                )}
-                                </>
-            )}
+              {contribuinte && (
+                <>
+                  <div className="br-list mt-4">
+                    <div className="br-item">
+                      <div className="row">
+                        <div className="col-md-6">
+                          <strong>Nome Civil:</strong> {contribuinte.nomeCivil}
+                        </div>
+                        <div className="col-md-6">
+                          <strong>Nome Social:</strong>{" "}
+                          {contribuinte.nomeSocial || "Não informado"}
+                        </div>
+                      </div>
+                      <div className="row mt-2">
+                        <div className="col-md-6">
+                          <strong>CPF:</strong>{" "}
+                          {contribuinte.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")}
+                        </div>
+                        <div className="col-md-6">
+                          <strong>Status:</strong>
+                          <span
+                            className={`br-tag ${contribuinte.isAtivo ? "success" : "danger"} ml-2`}
+                          >
+                            {contribuinte.isAtivo ? "Ativo" : "Inativo"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <br />
+                  {!clicado && (
+                    <div className="d-flex justify-content-end gap-3">
+                      <div className="col-md-5">
+                        <SecondaryButton 
+                          label={"Gerar Árvore Genealógica"} 
+                          onClick={() => handleClick(contribuinte.cpf)} 
+                        />
+                      </div>
+                      {contribuinte.isAtivo && (
+                        <div className="col-md-5">
+                          <SecondaryButton 
+                            label={desativando ? "Desativando..." : "Desativar Contribuinte"} 
+                            onClick={() => desativarContribuinte(contribuinte.cpf)}
+                            disabled={desativando}
+                            variant="danger"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
 
-            {successMessage && contribuinte && (
-              <div className="br-message success mt-4">
-                <div className="icon">
-                  <i className="fas fa-check-circle fa-lg" aria-hidden="true" />
-                </div>
-                <div className="content" role="alert">
-                  <span className="message-title">Contribuinte encontrado! </span>
-                  <span className="message-body">
-                    Os dados foram carregados com sucesso.
-                  </span>
-                </div>
-                <div className="close">
-                  <button
-                    className="br-button circle small"
-                    onClick={() => setSuccessMessage(false)}
-                  >
-                    <i className="fas fa-times" aria-hidden="true" />
-                  </button>
-                </div>
-              </div>
-            )}
+              <SuccessMessage
+                title="Operação realizada!"
+                message={
+                  contribuinte?.isAtivo 
+                    ? "Dados carregados com sucesso." 
+                    : "Contribuinte desativado com sucesso."
+                }
+                onClose={() => setSuccessMessage(false)}
+                show={successMessage && contribuinte}
+              />
+            </div>
           </div>
         </div>
+        {exibirTabela && (
+          <ArvoreGenealogica 
+            cpf={cpfSalvo} 
+            exibir={exibirTabela} 
+            nomeContribuinte={contribuinte?.nomeCivil} 
+          />
+        )}
       </div>
-      {exibirTabela && (
-         <ArvoreGenealogica 
-        cpf={cpfSalvo} 
-        exibir={exibirTabela} 
-        nomeContribuinte={contribuinte?.nomeCivil} 
-        />
-      )}
     </div>
-  </div>
-  
-
   );
 };
 

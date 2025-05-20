@@ -1,9 +1,6 @@
-// src/forms/Margem/SimulateMargin.jsx
-import React, { useState } from "react";
-import Header from "../../../components/global/Header";
-import NavigationRoutes from "../../../components/global/NavigationRoutes";
-import Footer from "../../../components/global/Footer";
+import { useState } from "react";
 import Button from "../../../components/global/Button";
+import Message from "../../../components/global/Message";
 import emprestimoService from "../../../service/emprestimo/emprestimoService";
 
 export default function SimulateMargin() {
@@ -79,28 +76,26 @@ export default function SimulateMargin() {
 
   return (
     <>
-      <Header />
       <main id="main-content" className="container-lg my-5">
-        <NavigationRoutes />
 
         <div className="row justify-content-center">
           <div className="col-sm-12 col-md-8 col-lg-6">
             <div className="br-card">
               <div className="card-header text-center">
-                <h2 style={{ color: "var(--interactive)" }}>
+                <h2>
                   Simular Margem Consignável
                 </h2>
               </div>
               <div className="card-content p-4">
                 <form
                   onSubmit={handleSubmit}
-                  className="row mb-4 align-items-end"
+                  className="row mb-3 align-items-end"
                   noValidate
                 >
-                  <div className="col-8">
+                  <div className="col-9">
                     <div className="br-input mb-0">
                       <label htmlFor="cpfContribuinte">
-                        CPF do Contribuinte
+                        CPF
                       </label>
                       <input
                         id="cpfContribuinte"
@@ -114,7 +109,7 @@ export default function SimulateMargin() {
                       />
                     </div>
                   </div>
-                  <div className="col-4 d-flex justify-content-end">
+                  <div className="col-3 d-flex justify-content-end">
                     <Button
                       variant="primary"
                       type="submit"
@@ -128,127 +123,87 @@ export default function SimulateMargin() {
 
                 {/* Erro de API / validação geral */}
                 {errorMsg && (
-                  <div className="br-message danger mb-4">
-                    <div className="icon">
-                      <i
-                        className="fas fa-times-circle fa-lg"
-                        aria-hidden="true"
-                      />
-                    </div>
-                    <div
-                      className="content"
-                      role="alert"
-                      aria-label={errorMsg}
+                  <Message
+                    type="danger"
+                    title="Erro. "
+                    className="mb-4"
+                    onClose={() => setErrorMsg("")}
                     >
-                      <span className="message-title">Erro</span>
-                      <span className="message-body"> {errorMsg}</span>
+                      {errorMsg}
+                  </Message>
+                )}
+
+                {/* Cards de resultado */}
+                {fetchedOnce && margem && !errorMsg && (
+                  <div className="br-row gutter mt-4">
+                    <div className="br-col-xs-6 md-3 mb-4">
+                      <div className="br-info-card">
+                        <div className="info-card__content">
+                          <strong>Valor do Benefício:</strong>&nbsp;
+                          {margem.valorBeneficio.toLocaleString("pt-BR", {
+                            style: "currency",
+                            currency: "BRL",
+                          })}
+                        </div>
+                      </div>
                     </div>
-                    <div className="close">
-                      <button
-                        className="br-button circle small"
-                        type="button"
-                        aria-label="Fechar alerta"
-                        onClick={() => setErrorMsg("")}
-                      >
-                        <i className="fas fa-times" aria-hidden="true" />
-                      </button>
+                    <div className="br-col-xs-6 md-3 mb-4">
+                      <div className="br-info-card">
+                        <div className="info-card__content">
+                          <strong>Margem Total:</strong>&nbsp;
+                          {margem.margemTotal.toLocaleString("pt-BR", {
+                            style: "currency",
+                            currency: "BRL",
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="br-col-xs-6 md-3 mb-4">
+                      <div className="br-info-card">
+                        <div className="info-card__content">
+                          <strong>Valor em Uso:</strong>&nbsp;
+                          {margem.valorEmUso.toLocaleString("pt-BR", {
+                            style: "currency",
+                            currency: "BRL",
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="br-col-xs-6 md-3 mb-4">
+                      <div className="br-info-card">
+                        <div className="info-card__content">
+                          <strong>Margem Disponível:</strong>&nbsp;
+                          {margem.margemDisponivel.toLocaleString("pt-BR", {
+                            style: "currency",
+                            currency: "BRL",
+                          })}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
 
-                {/* Cards de resultado (ícone → valor → label) */}
-                {fetchedOnce && margem && !errorMsg && (
-                  <div className="br-row gutter">
-                    {[
-                      {
-                        label: "Valor do Benefício",
-                        value: margem.valorBeneficio,
-                        icon: "fas fa-hand-holding-usd",
-                      },
-                      {
-                        label: "Margem Total",
-                        value: margem.margemTotal,
-                        icon: "fas fa-layer-group",
-                      },
-                      {
-                        label: "Valor em Uso",
-                        value: margem.valorEmUso,
-                        icon: "fas fa-dollar-sign",
-                      },
-                      {
-                        label: "Margem Disponível",
-                        value: margem.margemDisponivel,
-                        icon: "fas fa-wallet",
-                      },
-                    ].map(({ label, value, icon }) => (
-                      <div key={label} className="br-col-xs-6 md-3 mb-4">
-                        <div className="br-info-card">
-                          <div className="info-card__icon">
-                            <i className={icon} aria-hidden="true" />
-                          </div>
-                          <div className="info-card__content">
-                            <div className="info-card__value">
-                              {value.toLocaleString("pt-BR", {
-                                style: "currency",
-                                currency: "BRL",
-                              })}
-                            </div>
-                            <div className="info-card__label">{label}</div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
 
                 {/* “Nenhum benefício encontrado” em amarelo */}
                 {fetchedOnce &&
                   !loading &&
                   !errorMsg &&
                   margem === null && (
-                    <div className="br-message warning mt-4">
-                      <div className="icon">
-                        <i
-                          className="fas fa-exclamation-triangle fa-lg"
-                          aria-hidden="true"
-                        />
-                      </div>
-                      <div
-                        className="content"
-                        role="alert"
-                        aria-label="Nenhum benefício encontrado para este CPF."
-                      >
-                        <span className="message-title">Atenção. </span>
-                        <span className="message-body">
-                          Benefício não foi concedido para este CPF.
-                        </span>
-                      </div>
-                      <div className="close">
-                        <button
-                          className="br-button circle small"
-                          type="button"
-                          aria-label="Fechar alerta"
-                          onClick={() => setFetchedOnce(false)}
-                        >
-                          <i className="fas fa-times" aria-hidden="true" />
-                        </button>
-                      </div>
-                    </div>
+                    <Message
+                    type="warning"
+                    title="Atenção. "
+                    className="mt-4"
+                    onClose={() => setFetchedOnce(false)}
+                  >
+                    Benefício não foi concedido para este CPF.
+                  </Message>
                   )}
 
-                {/* Mensagem inicial */}
-                {!fetchedOnce && !errorMsg && (
-                  <p className="text-center text-down-01">
-                    Informe um CPF e clique em Buscar para ver sua margem
-                    disponível.
-                  </p>
-                )}
               </div>
             </div>
           </div>
         </div>
       </main>
-      <Footer />
     </>
   );
 }

@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import tipoParentescoService from '../../../service/contribuinte/tipoParentescoService';
 
 const SelectTipoParentesco = ({ onChange, value, name }) => {
   const [tiposDeParentesco, setTiposDeParentesco] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
+  const selectRef = useRef(null);
 
   useEffect(() => {
     tipoParentescoService.listarTipoDeParentesco()
@@ -22,7 +23,7 @@ const SelectTipoParentesco = ({ onChange, value, name }) => {
         }
       });
     }
-    setIsOpen(false); // Fecha o menu após a seleção
+    setIsOpen(false);
   };
   
   const toggleList = () => {
@@ -30,7 +31,7 @@ const SelectTipoParentesco = ({ onChange, value, name }) => {
   };
 
   return (
-    <div className="br-select">
+    <div className="br-select" ref={selectRef} style={{ position: "relative" }}>
       <div className="br-input">
         <label htmlFor={`select-tipo-parentesco-${name}`}>Tipo de Parentesco</label>
         <input
@@ -49,8 +50,24 @@ const SelectTipoParentesco = ({ onChange, value, name }) => {
           <i className="fas fa-angle-down" aria-hidden="true"></i>
         </button>
       </div>
-      {isOpen && ( // Renderização condicional mais explícita
-        <div className="br-list" tabIndex="0" expanded="true">
+      {isOpen && (
+        <div
+          className="br-list"
+          tabIndex="0"
+          style={{
+            display: "block",
+            position: "absolute",
+            top: "100%",
+            left: 0,
+            width: "100%",
+            maxHeight: "13rem",
+            overflowY: "auto",
+            background: "#fff",
+            border: "1px solid #ccc",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            zIndex: 10,
+          }}
+        >
           {tiposDeParentesco.map(tipo => (
             <div className="br-item" key={tipo.idTipoParentesco} tabIndex="-1">
               <div className="br-radio">

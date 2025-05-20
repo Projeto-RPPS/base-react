@@ -1,6 +1,7 @@
 import React from 'react';
+import SecondaryButton from '../global/SecundaryButton';
 
-const ListaSolicitacoes = ({ solicitacoes }) => {
+const ListaSolicitacoes = ({ solicitacoes, onDesativar }) => {
   if (!solicitacoes || solicitacoes.length === 0) {
     return (
       <div className="br-message warning mt-4">
@@ -35,6 +36,16 @@ const ListaSolicitacoes = ({ solicitacoes }) => {
                 <strong>Total de Benefícios:</strong> R$ {s.totalBeneficios} <br />
                 {/* <strong>Ativo:</strong> {s.ativo ? "Sim" : "Não"} */}
               </div>
+
+                    {onDesativar && (
+            <div className="ml-10">
+              <SecondaryButton
+                label="Desativar"
+                onClick={() => onDesativar(s.idSolicitacao)}
+              />
+            </div>
+
+              )}
             </li>
           ))}
         </ul>

@@ -10,7 +10,7 @@ export default function SelectEstado({ value, onChange }) {
     "Mato Grosso", "Mato Grosso do Sul", "Minas Gerais", "Pará", 
     "Paraíba", "Paraná", "Pernambuco", "Piauí", "Rio de Janeiro", 
     "Rio Grande do Norte", "Rio Grande do Sul", "Rondônia", 
-    "Santa Catarina", "São Paulo", "Sergipe", "Tocantins", "Exterior"
+    "Santa Catarina", "São Paulo", "Sergipe", "Tocantins"
   ];
 
   // Fecha o dropdown quando clicar fora
@@ -46,7 +46,7 @@ export default function SelectEstado({ value, onChange }) {
   };
 
   return (
-    <div className="br-select" ref={selectRef}>
+    <div className="br-select" ref={selectRef} style={{ position: "relative" }}>
       <div className="br-input">
         <label htmlFor="select-estado">Estado</label>
         <input
@@ -67,7 +67,23 @@ export default function SelectEstado({ value, onChange }) {
         </button>
       </div>
       {isOpen && (
-        <div className="br-list" tabIndex="0" style={{ display: 'block' }}>
+        <div 
+          className="br-list" 
+          tabIndex="0"
+          style={{
+            display: 'block',
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            width: '100%',
+            maxHeight: '13rem',
+            overflowY: 'auto',
+            background: '#fff',
+            border: '1px solid #ccc',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            zIndex: 10
+          }}
+        >
           {estados.map((estado, index) => (
             <div 
               className="br-item" 

@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import beneficioService from "../service/beneficio/beneficioService";
-import FormularioBeneficio from "../forms/beneficioApi/FormularioBeneficio";
-import ListaBeneficios from "../components/beneficioComponent/ListaBeneficios";
-import NavigationRoutes from "../components/global/NavigationRoutes";
-import SecondaryButton from "../components/global/SecundaryButton";
+import beneficioService from "../../../service/beneficio/beneficioService";
+import FormularioBeneficio from "../FormularioBeneficio";
+import ListaBeneficios from "../../../components/beneficioComponent/ListaBeneficios";
+import SecondaryButton from "../../../components/global/SecundaryButton";
 
 export default function BeneficiosPage() {
   const [beneficios, setBeneficios] = useState([]);

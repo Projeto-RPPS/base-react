@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import Input from "../components/global/Input";
-import SecondaryButton from "../../src/components/global/SecundaryButton";
-import AlertaErro from "../../src/components/beneficioComponent/messageComponent/AlertErro";
-import SuccessMessage from "../../src/components/beneficioComponent/messageComponent/SuccesMessage";
-import beneficioService from "../../src/service/beneficio/beneficioService";
+import Input from "../../../components/global/Input";
+import SecondaryButton from "../../../components/global/SecundaryButton";
+import AlertaErro from "../../../components/beneficioComponent/messageComponent/AlertErro";
+import SuccessMessage from "../../../components/beneficioComponent/messageComponent/SuccesMessage";
+import beneficioService from "../../../service/beneficio/beneficioService";
 
 const EditarBeneficioPage = () => {
   const { id } = useParams();
@@ -155,9 +155,9 @@ const EditarBeneficioPage = () => {
       <button 
         type="button" 
         className="br-button primary mr-3"
-        onClick={() => navigate("/beneficios")}
+        onClick={() => navigate("/beneficios/editar")}
       >
-        Voltar ao menu de Benefícios
+        Voltar
       </button>
             
          
