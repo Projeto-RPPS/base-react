@@ -1,14 +1,37 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Input from "../../components/global/Input";
 import categoriaService from "../../service/contribuinte/categoriaService";
+import authService from "../../service/login/authService";
 import AlertaErro from "../../components/contribuinteComponent/messageComponent/AlertaErro";
 import SuccessMessage from "../../components/contribuinteComponent/messageComponent/SuccesMessage";
 import SelectCategoria from "../../components/contribuinteComponent/selects/SelectCategoria";
 
-const EditCategoria = ({editFormInitial}) => {
+const EditCategoria = ({ editFormInitial }) => {
   const [erro, setErro] = useState(null);
   const [successMessage, setSuccessMessage] = useState(false);
   const [formData, setFormData] = useState(editFormInitial);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loadingAuth, setLoadingAuth] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    authService
+      .me()
+      .then(u => {
+        if (!u || u.role !== "admin") {
+          navigate("/home");
+          return;
+        }
+        setIsAdmin(true);
+      })
+      .catch(() => {
+        navigate("/home");
+      })
+      .finally(() => {
+        setLoadingAuth(false);
+      });
+  }, [navigate]);
 
   // Carrega os dados quando uma categoria é selecionada
   const handleCategoriaChange = (e) => {
@@ -18,7 +41,6 @@ const EditCategoria = ({editFormInitial}) => {
         setFormData({
           idCategoria: response.data.idCategoria,
           nomeCategoria: response.data.nomeCategoria,
-          // Multiplica por 100 para exibição
           percentualContribuicaoAntesDeSalvar: (response.data.percentualContribuicao * 100)?.toString() || "",
           percentualContribuicao: (response.data.percentualContribuicao * 100)?.toString() || ""
         });
@@ -38,14 +60,10 @@ const EditCategoria = ({editFormInitial}) => {
   };
 
   const formatPercentInput = (value) => {
-    // Remove tudo exceto números
     let formattedValue = value.replace(/[^0-9]/g, '');
-    
-    // Limita a 2 dígitos (0-99)
     if (formattedValue.length > 2) {
       formattedValue = formattedValue.slice(0, 2);
     }
-    
     return formattedValue;
   };
 
@@ -60,8 +78,7 @@ const EditCategoria = ({editFormInitial}) => {
     };
     
     categoriaService.editarCategoria(jsonFinal)
-      // eslint-disable-next-line no-unused-vars
-      .then(response => {
+      .then(() => {
         setSuccessMessage(true);
         setFormData(editFormInitial);
       })
@@ -75,6 +92,14 @@ const EditCategoria = ({editFormInitial}) => {
            formData.nomeCategoria.trim() !== "" && 
            !isNaN(parseFloat(formData.percentualContribuicaoAntesDeSalvar));
   };
+
+  if (loadingAuth) {
+    return <div className="text-center mt-5">Carregando...</div>;
+  }
+
+  if (!isAdmin) {
+    return null; // O useEffect já redireciona para /home
+  }
 
   return (
     <div className="row justify-content-center">

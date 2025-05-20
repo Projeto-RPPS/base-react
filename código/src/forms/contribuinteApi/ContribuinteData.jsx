@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Input from "../../components/global/Input";
 import contribuinteService from "../../service/contribuinte/contribuinteService";
+import authService from "../../service/login/authService";
 import AlertaErro from "../../components/contribuinteComponent/messageComponent/AlertaErro";
 import SuccessMessage from "../../components/contribuinteComponent/messageComponent/SuccesMessage";
 import SecondaryButton from "../../components/global/SecundaryButton";
@@ -16,6 +18,23 @@ const ContribuinteData = () => {
   const [cpfSalvo, setCpfSalvo] = useState(null);
   const [clicado, setClicado] = useState(false);
   const [desativando, setDesativando] = useState(false);
+  const [userRole, setUserRole] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    authService
+      .me()
+      .then(u => {
+        if (!u) {
+          navigate("/home");
+          return;
+        }
+        setUserRole(u.role);
+      })
+      .catch(() => {
+        navigate("/home");
+      });
+  }, [navigate]);
 
   // Função para formatar o CPF durante a digitação
   const formatCPF = (value) => {
@@ -173,7 +192,7 @@ const ContribuinteData = () => {
                           onClick={() => handleClick(contribuinte.cpf)} 
                         />
                       </div>
-                      {contribuinte.isAtivo && (
+                      {contribuinte.isAtivo && userRole === "admin" && (
                         <div className="col-md-5">
                           <SecondaryButton 
                             label={desativando ? "Desativando..." : "Desativar Contribuinte"} 

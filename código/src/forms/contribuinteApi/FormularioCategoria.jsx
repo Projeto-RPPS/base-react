@@ -1,13 +1,36 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Input from "../../components/global/Input";
 import categoriaService from "../../service/contribuinte/categoriaService";
+import authService from "../../service/login/authService";
 import AlertaErro from "../../components/contribuinteComponent/messageComponent/AlertaErro";
 import SuccessMessage from "../../components/contribuinteComponent/messageComponent/SuccesMessage";
 
-const FormularioCategoria = ({formIncial}) => {
+const FormularioCategoria = ({ formIncial }) => {
   const [erro, setErro] = useState(null);
   const [successMessage, setSuccessMessage] = useState(false);
   const [formData, setFormData] = useState(formIncial);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loadingAuth, setLoadingAuth] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    authService
+      .me()
+      .then(u => {
+        if (!u || u.role !== "admin") {
+          navigate("/home");
+          return;
+        }
+        setIsAdmin(true);
+      })
+      .catch(() => {
+        navigate("/home");
+      })
+      .finally(() => {
+        setLoadingAuth(false);
+      });
+  }, [navigate]);
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -44,6 +67,14 @@ const FormularioCategoria = ({formIncial}) => {
     return formData.nomeCategoria.trim() !== "" && 
            !isNaN(formData.percentualContribuicao);
   };
+
+  if (loadingAuth) {
+    return <div className="text-center mt-5">Carregando...</div>;
+  }
+
+  if (!isAdmin) {
+    return null; // Ou redireciona para /home (o useEffect já cuida disso)
+  }
 
   return (
     <div className="row justify-content-center">
