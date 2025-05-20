@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Button from "../../../components/global/Button";
 import Message from "../../../components/global/Message";
 import emprestimoService from "../../../service/emprestimo/emprestimoService";
 import { useNavigate } from "react-router-dom";
+import authService from "../../../service/login/authService";
 
 export default function LoanList() {
   const navigate = useNavigate();
@@ -18,24 +19,31 @@ export default function LoanList() {
   const [loadingParcelas, setLoadingParcelas] = useState(false);
   const [erroParcelas, setErroParcelas] = useState("");
 
-  function handleCpfChange(e) {
-    let raw = e.target.value.replace(/\D/g, "").slice(0, 11);
-    let fmt = raw;
-    if (raw.length > 9) fmt = raw.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
-    else if (raw.length > 6) fmt = raw.replace(/(\d{3})(\d{3})(\d{1,3})/, "$1.$2.$3");
-    else if (raw.length > 3) fmt = raw.replace(/(\d{3})(\d{1,3})/, "$1.$2");
-    setCpf(fmt);
-  }
+  useEffect(() => {
+      authService
+        .me()
+        .then(({ cpf: raw }) => {
+          const formatted = raw.replace(
+            /(\d{3})(\d{3})(\d{3})(\d{2})/,
+            "$1.$2.$3-$4"
+          );
+          setCpf(formatted);
+        })
+        .catch(() => {
+          // não está logado
+          navigate("/home");
+        });
+    }, [navigate]);
+
   const rawCpf = cpf.replace(/\D/g, "");
 
-  async function handleSubmit(e) {
-    e.preventDefault();
+   async function fetchLoans() {
     if (rawCpf.length !== 11) return;
 
+    // reset de estados
     setExpandedId(null);
     setParcelas([]);
     setErroParcelas("");
-
     setFetchedOnce(false);
     setLoading(true);
     setErrorMsg("");
@@ -58,15 +66,25 @@ export default function LoanList() {
     } catch (err) {
       const resp = err.response;
       if (resp?.status === 404 && Array.isArray(resp.data.erros)) {
-        setWarningMsg(resp.data.mensagem || "Nenhum empréstimo encontrado para o CPF informado.");
+        setWarningMsg(
+          resp.data.mensagem ||
+            "Nenhum empréstimo encontrado para o CPF informado."
+        );
       } else {
-        setErrorMsg(resp?.data?.mensagem || "Ocorreu um erro inesperado. Tente novamente mais tarde.");
+        setErrorMsg(
+          resp?.data?.mensagem ||
+            "Ocorreu um erro inesperado. Tente novamente mais tarde."
+        );
       }
     } finally {
       setFetchedOnce(true);
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    fetchLoans();
+  }, [rawCpf]);
 
   async function toggleParcelas(loan) {
     const id = loan.idEmprestimo;
@@ -104,39 +122,28 @@ export default function LoanList() {
 
         {/* Formulário de busca */}
         <div className="row justify-content-center mb-5">
-          <div className="col-12 col-md-10 col-lg-6">
+          <div className="col-12 col-md-10 col-lg-5">
             <div className="br-card">
               <div className="card-header text-center">
                 <h2>Meus Empréstimos</h2>
               </div>
               <div className="card-content p-4">
-                <form onSubmit={handleSubmit} className="row align-items-end mb-3">
-                  <div className="col-9">
-                    <div className="br-input mb-0">
-                      <label htmlFor="cpfBusca">CPF</label>
-                      <input
-                        id="cpfBusca"
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="000.000.000-00"
-                        className="w-100"
-                        value={cpf}
-                        onChange={handleCpfChange}
-                        disabled={loading}
-                      />
+                <div className="row align-items-end mb-3">
+                  <div className="col-12">
+                      <div className="br-input">
+                        <label htmlFor="cpf-disabled">CPF</label>
+                        <input
+                          id="cpf-disabled"
+                          type="text"
+                          value={cpf}        
+                          disabled                      
+                          className="form-control"
+                        />
+                      </div>
                     </div>
+                    <div className="col-3 text-right">
                   </div>
-                  <div className="col-3 text-right">
-                    <Button
-                      variant="primary"
-                      type="submit"
-                      disabled={loading || rawCpf.length !== 11}
-                      className="block"
-                    >
-                      {loading ? "Carregando…" : "Buscar"}
-                    </Button>
-                  </div>
-                </form>
+                </div>
 
                 {errorMsg && (
                   <Message

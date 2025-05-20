@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Input from "../components/global/Input";
-import AlertaErro from "../components/contribuinteComponent/messageComponent/AlertaErro";
 import authService from "../service/login/authService";
+import Message from "../components/global/Message";
 
 const LoginPage = () => {
   const [cpf, setCpf] = useState("");
@@ -83,11 +83,14 @@ const LoginPage = () => {
                 </div>
 
                 {erro && (
-                  <AlertaErro
-                    nomeClasse={""}
-                    erro={erro}
-                    onClose={() => setErro(null)}
-                  />
+                  <Message
+                    type="danger"                    // alerta vermelho
+                    title="Erro ao fazer login. "    // título opcional
+                    className="mt-3"
+                    onClose={() => setErro(null)}    // auto‐fechar quando clicar no X
+                  >
+                    {erro}
+                  </Message>
                 )}
 
                 <div className="d-flex justify-content-between align-items-center mt-4">

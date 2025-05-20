@@ -1,8 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Input from "../../../components/global/Input";
 import Button from "../../../components/global/Button";
 import Message from "../../../components/global/Message";
 import emprestimoService from "../../../service/emprestimo/emprestimoService";
+import { useNavigate } from "react-router-dom";
+import authService from "../../../service/login/authService";
 
 export default function CreateLoan() {
   const [cpf, setCpf] = useState("");
@@ -18,18 +20,28 @@ export default function CreateLoan() {
   const numericValor = parseFloat(valorTotal.replace(",", "."));
   const numericParcelas = parseInt(quantidadeParcelas, 10);
 
+  const navigate = useNavigate();
+
   const isCpfValid = rawCpf.length === 11;
   const isValorValid = !isNaN(numericValor) && numericValor > 0;
   const isParcelasValid = !isNaN(numericParcelas) && numericParcelas > 0;
   const isFormValid = isCpfValid && isValorValid && isParcelasValid;
 
-  function handleCpfChange(e) {
-    let v = e.target.value.replace(/\D/g, "").slice(0, 11);
-    if (v.length > 9) v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
-    else if (v.length > 6) v = v.replace(/(\d{3})(\d{3})(\d{1,3})/, "$1.$2.$3");
-    else if (v.length > 3) v = v.replace(/(\d{3})(\d{1,3})/, "$1.$2");
-    setCpf(v);
-  }
+  useEffect(() => {
+    authService
+      .me()
+      .then(({ cpf: raw }) => {
+        const formatted = raw.replace(
+          /(\d{3})(\d{3})(\d{3})(\d{2})/,
+          "$1.$2.$3-$4"
+        );
+        setCpf(formatted);
+      })
+      .catch(() => {
+        // não está logado
+        navigate("/home");
+      });
+  }, [navigate]);
 
   function handleValorChange(e) {
     let v = e.target.value.replace(/[^0-9,\.]/g, "");
@@ -99,20 +111,22 @@ export default function CreateLoan() {
               </div>
               <div className="card-content p-4">
                 <form onSubmit={handleSubmit} noValidate>
-                  <fieldset className="br-fieldset mb-4">
-                    <legend>Dados do Contribuinte</legend>
-                    <Input
-                      id="cpfContribuinte"
-                      label="CPF"
-                      type="text"
-                      placeholder="000.000.000-00"
-                      data-mask="999.999.999-99"
-                      inputMode="numeric"
-                      value={cpf}
-                      onChange={handleCpfChange}
-                      className="col-12"
-                    />
-                  </fieldset>
+                  <fieldset className="br-fieldset mb-3">
+                  <legend>Dados do Contribuinte</legend>
+                    <div className="col-7">
+                      <div className="br-input">
+                        <label htmlFor="cpf-disabled">CPF</label>
+                        <input
+                          id="cpf-disabled"
+                          type="text"
+                          value={cpf}        
+                          disabled                      
+                          className="form-control"
+                        />
+                      </div>
+                    </div>
+                </fieldset>
+
                   <fieldset className="br-fieldset mb-4">
                     <legend>Detalhes do Empréstimo</legend>
                     <Input

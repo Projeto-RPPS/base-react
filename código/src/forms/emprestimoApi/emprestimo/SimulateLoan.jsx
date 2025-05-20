@@ -1,8 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Input from "../../../components/global/Input";
 import Button from "../../../components/global/Button";
 import Message from "../../../components/global/Message";
 import emprestimoService from "../../../service/emprestimo/emprestimoService";
+import { useNavigate } from "react-router-dom";
+import authService from "../../../service/login/authService";
 
 export default function SimulateLoan() {
   const [cpf, setCpf] = useState("");
@@ -13,6 +15,7 @@ export default function SimulateLoan() {
   const [errorMsg, setErrorMsg] = useState("");     // erros vermelhos
   const [warningMsg, setWarningMsg] = useState(""); // “sem benefício”
   const [resultado, setResultado] = useState(null);
+  const navigate = useNavigate();
 
   // máscara e validações de front
   const rawCpf = useMemo(() => cpf.replace(/\D/g, ""), [cpf]);
@@ -30,13 +33,21 @@ export default function SimulateLoan() {
   const isParcelasValid = !isNaN(numericParcelas) && numericParcelas > 0;
   const isFormValid = isCpfValid && isValorValid && isParcelasValid;
 
-  function handleCpfChange(e) {
-    let v = e.target.value.replace(/\D/g, "").slice(0, 11);
-    if (v.length > 9) v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
-    else if (v.length > 6) v = v.replace(/(\d{3})(\d{3})(\d{1,3})/, "$1.$2.$3");
-    else if (v.length > 3) v = v.replace(/(\d{3})(\d{1,3})/, "$1.$2");
-    setCpf(v);
-  }
+  useEffect(() => {
+      authService
+        .me()
+        .then(({ cpf: raw }) => {
+          const formatted = raw.replace(
+            /(\d{3})(\d{3})(\d{3})(\d{2})/,
+            "$1.$2.$3-$4"
+          );
+          setCpf(formatted);
+        })
+        .catch(() => {
+          // não está logado
+          navigate("/home");
+        });
+    }, [navigate]);
 
   function handleValorChange(e) {
     let v = e.target.value.replace(/[^0-9,\.]/g, "");
@@ -120,16 +131,18 @@ export default function SimulateLoan() {
                 <form onSubmit={handleSubmit} noValidate>
                   <fieldset className="br-fieldset mb-4">
                     <legend>Dados da Simulação</legend>
-                    <Input
-                      id="cpfContribuinte"
-                      label="CPF"
-                      type="text"
-                      placeholder="000.000.000-00"
-                      inputMode="numeric"
-                      value={cpf}
-                      onChange={handleCpfChange}
-                      className="col-12 mb-3"
-                    />
+                    <div className="col-7 mb-3">
+                        <div className="br-input">
+                          <label htmlFor="cpf-disabled">CPF</label>
+                          <input
+                            id="cpf-disabled"
+                            type="text"
+                            value={cpf}        
+                            disabled                      
+                            className="form-control"
+                          />
+                        </div>
+                      </div>
                     <Input
                       id="valorTotal"
                       label="Valor (R$)"

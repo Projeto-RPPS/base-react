@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Button from "../../../components/global/Button";
 import Message from "../../../components/global/Message";
 import emprestimoService from "../../../service/emprestimo/emprestimoService";
+import authService from "../../../service/login/authService";
+import { useNavigate } from "react-router-dom";
 
 export default function SimulateMargin() {
   const [cpf, setCpf] = useState("");
@@ -10,29 +12,29 @@ export default function SimulateMargin() {
   const [fetchedOnce, setFetchedOnce] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Formata e limita a entrada do CPF para 11 dígitos
-  function handleCpfChange(e) {
-    let raw = e.target.value.replace(/\D/g, "").slice(0, 11);
-    let formatted = raw;
-    if (raw.length > 9) {
-      formatted = raw.replace(
-        /(\d{3})(\d{3})(\d{3})(\d{2})/,
-        "$1.$2.$3-$4"
-      );
-    } else if (raw.length > 6) {
-      formatted = raw.replace(/(\d{3})(\d{3})(\d{1,3})/, "$1.$2.$3");
-    } else if (raw.length > 3) {
-      formatted = raw.replace(/(\d{3})(\d{1,3})/, "$1.$2");
-    }
-    setCpf(formatted);
-  }
+  const navigate = useNavigate();
 
   // Extrai apenas os dígitos
   const rawCpf = cpf.replace(/\D/g, "");
   const isCpfValid = rawCpf.length === 11;
 
-  async function handleSubmit(e) {
-    e.preventDefault();
+  useEffect(() => {
+        authService
+          .me()
+          .then(({ cpf: raw }) => {
+            const formatted = raw.replace(
+              /(\d{3})(\d{3})(\d{3})(\d{2})/,
+              "$1.$2.$3-$4"
+            );
+            setCpf(formatted);
+          })
+          .catch(() => {
+            // não está logado
+            navigate("/home");
+          });
+      }, [navigate]);
+
+  async function fetchMargin() {
     if (!isCpfValid) return;
 
     setLoading(true);
@@ -74,6 +76,10 @@ export default function SimulateMargin() {
     }
   }
 
+  useEffect(() => {
+      fetchMargin();
+    }, [rawCpf]);
+
   return (
     <>
       <main id="main-content" className="container-lg my-5">
@@ -87,39 +93,25 @@ export default function SimulateMargin() {
                 </h2>
               </div>
               <div className="card-content p-4">
-                <form
-                  onSubmit={handleSubmit}
+                <div  
                   className="row mb-3 align-items-end"
                   noValidate
                 >
-                  <div className="col-9">
+                  <div className="col-12">
                     <div className="br-input mb-0">
                       <label htmlFor="cpfContribuinte">
                         CPF
                       </label>
-                      <input
-                        id="cpfContribuinte"
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="000.000.000-00"
-                        className="w-100"
-                        value={cpf}
-                        onChange={handleCpfChange}
-                        disabled={loading}
-                      />
+                     <input
+                          id="cpf-disabled"
+                          type="text"
+                          value={cpf}        
+                          disabled                      
+                          className="form-control"
+                        />
                     </div>
                   </div>
-                  <div className="col-3 d-flex justify-content-end">
-                    <Button
-                      variant="primary"
-                      type="submit"
-                      disabled={loading || !isCpfValid}
-                      className="block"
-                    >
-                      {loading ? "Carregando…" : "Buscar"}
-                    </Button>
-                  </div>
-                </form>
+                </div>
 
                 {/* Erro de API / validação geral */}
                 {errorMsg && (
