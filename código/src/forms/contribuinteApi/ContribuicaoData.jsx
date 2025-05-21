@@ -14,6 +14,7 @@ const ContribuicaoData = () => {
   const [contribuicoes, setContribuicoes] = useState([]);
   const [successMessage, setSuccessMessage] = useState(false);
   const [userInfo, setUserInfo] = useState({ role: null, cpf: null });
+  const [isManualSearch, setIsManualSearch] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,16 +27,37 @@ const ContribuicaoData = () => {
         }
         setUserInfo({ role: u.role, cpf: u.cpf });
         
-        // Se for user, já carrega automaticamente suas contribuições
+        // Se for user, carrega automaticamente suas contribuições
         if (u.role === "user") {
-          setCpf(u.cpf);
-          pesquisarContribuicoes(null, u.cpf);
+          carregarContribuicoesAutomaticamente(u.cpf);
         }
       })
       .catch(() => {
         navigate("/home");
       });
   }, [navigate]);
+
+  const carregarContribuicoesAutomaticamente = (cpfUsuario) => {
+    const cpfSemFormatacao = cpfUsuario.replace(/\D/g, '');
+    
+    setLoading(true);
+    setErro(null);
+    setContribuicoes([]);
+
+    contribuicaoService
+      .listarContribuicao(cpfSemFormatacao)
+      .then((response) => {
+        setContribuicoes(response.data);
+        // Não mostra mensagem de sucesso no carregamento automático
+      })
+      .catch((error) => {
+        console.error("Erro ao carregar contribuições:", error);
+        setErro(error.response?.data?.message || "Erro ao buscar contribuições");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
 
   const formatCPF = (value) => {
     const numericValue = value.replace(/\D/g, '');
@@ -58,18 +80,11 @@ const ContribuicaoData = () => {
     setCpf(formattedValue);
   };
 
-  const pesquisarContribuicoes = (e, cpfToSearch = null) => {
-    if (e) e.preventDefault();
+  const pesquisarContribuicoes = (e) => {
+    e.preventDefault();
+    setIsManualSearch(true); // Marca como pesquisa manual
 
-    let cpfSemFormatacao;
-    
-    if (cpfToSearch) {
-      // Caso de carregamento automático para user
-      cpfSemFormatacao = cpfToSearch.replace(/\D/g, '');
-    } else {
-      // Caso de pesquisa manual (admin)
-      cpfSemFormatacao = cpf.replace(/\D/g, '');
-    }
+    const cpfSemFormatacao = cpf.replace(/\D/g, '');
 
     if (cpfSemFormatacao.length !== 11) {
       setErro("CPF deve conter exatamente 11 dígitos");
@@ -84,7 +99,7 @@ const ContribuicaoData = () => {
       .listarContribuicao(cpfSemFormatacao)
       .then((response) => {
         setContribuicoes(response.data);
-        setSuccessMessage(true);
+        setSuccessMessage(true); // Mostra mensagem apenas em pesquisas manuais
       })
       .catch((error) => {
         console.error("Erro ao pesquisar contribuições:", error);
@@ -174,7 +189,7 @@ const ContribuicaoData = () => {
                 />
               )}
 
-              {successMessage && contribuicoes.length > 0 && (
+              {successMessage && contribuicoes.length > 0 && isManualSearch && (
                 <SuccessMessage
                   show={successMessage}
                   onClose={() => setSuccessMessage(false)}

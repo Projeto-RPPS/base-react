@@ -20,6 +20,7 @@ const ContribuinteData = () => {
   const [desativando, setDesativando] = useState(false);
   const [userRole, setUserRole] = useState(null);
   const [userCpf, setUserCpf] = useState("");
+  const [isManualSearch, setIsManualSearch] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,15 +34,39 @@ const ContribuinteData = () => {
         setUserRole(u.role);
         setUserCpf(u.cpf);
         
-        // Se for user, carrega automaticamente seus dados (sem preencher o input)
+        // Se for user, carrega automaticamente seus dados (sem preencher o input e sem mensagem de sucesso)
         if (u.role === "user") {
-          pesquisarContribuinte(null, u.cpf);
+          carregarContribuinteAutomaticamente(u.cpf);
         }
       })
       .catch(() => {
         navigate("/home");
       });
   }, [navigate]);
+
+  const carregarContribuinteAutomaticamente = (cpfUsuario) => {
+    const cpfSemFormatacao = cpfUsuario.replace(/\D/g, '');
+    
+    setLoading(true);
+    setErro(null);
+    setContribuinte(null);
+
+    contribuinteService
+      .pesquisarContribuinte(cpfSemFormatacao)
+      .then((response) => {
+        setExibirTabela(false);
+        setClicado(false);
+        setContribuinte(response.data);
+        // Não mostra mensagem de sucesso no carregamento automático
+      })
+      .catch((error) => {
+        console.error("Erro ao carregar contribuinte:", error);
+        setErro(error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
 
   // Função para formatar o CPF durante a digitação
   const formatCPF = (value) => {
@@ -86,10 +111,11 @@ const ContribuinteData = () => {
       });
   };
 
-  const pesquisarContribuinte = (e, cpfToSearch = null) => {
-    if (e) e.preventDefault();
+  const pesquisarContribuinte = (e) => {
+    e.preventDefault();
+    setIsManualSearch(true); // Marca como pesquisa manual
 
-    const cpfSemFormatacao = cpfToSearch ? cpfToSearch.replace(/\D/g, '') : cpf.replace(/\D/g, '');
+    const cpfSemFormatacao = cpf.replace(/\D/g, '');
 
     if (cpfSemFormatacao.length !== 11) {
       setErro({ message: "CPF deve conter exatamente 11 dígitos" });
@@ -106,11 +132,8 @@ const ContribuinteData = () => {
         setExibirTabela(false);
         setClicado(false);
         setContribuinte(response.data);
-        setSuccessMessage(true);
-        // Não limpa o CPF se for pesquisa manual
-        if (!cpfToSearch) {
-          setCpf("");
-        }
+        setSuccessMessage(true); // Mostra mensagem apenas em pesquisas manuais
+        setCpf("");
       })
       .catch((error) => {
         console.error("Erro ao pesquisar contribuinte:", error);
@@ -218,14 +241,14 @@ const ContribuinteData = () => {
               )}
 
               <SuccessMessage
-                title="Operação realizada!"
+                title="Pesquisa: "
                 message={
                   contribuinte?.isAtivo 
                     ? "Dados carregados com sucesso." 
-                    : "Contribuinte desativado com sucesso."
+                    : "Contribuinte desativado."
                 }
                 onClose={() => setSuccessMessage(false)}
-                show={successMessage && contribuinte}
+                show={successMessage && contribuinte && isManualSearch} // Só mostra se for pesquisa manual
               />
             </div>
           </div>
