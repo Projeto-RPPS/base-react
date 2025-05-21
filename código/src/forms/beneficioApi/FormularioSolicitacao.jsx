@@ -1,20 +1,24 @@
 // src/forms/beneficioApi/FormularioSolicitacao.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Input from "../../components/global/Input";
 import SecondaryButton from "../../components/global/SecundaryButton";
 import solicitacaoService from "../../service/beneficio/solicitacaoService";
 import AlertaErro from "../../components/beneficioComponent/messageComponent/AlertErro";
 import SuccessMessage from "../../components/beneficioComponent/messageComponent/SuccesMessage";
 import SelectBeneficio from "../../components/beneficioComponent/selects/SelectBeneficio";
+import authService from "../../service/login/authService";
+import { useNavigate } from "react-router-dom";
 
 
 const FormularioSolicitacao = ({ onSalvar }) => {
   const [erro, setErro] = useState(null);
   const [successMessage, setSuccessMessage] = useState(false);
+  const [cpf, setCpf] = useState("");
   const [formData, setFormData] = useState({
     cpf: "",
     beneficioId: ""
   });
+  const navigate = useNavigate();
 
 
   // Função para lidar com mudanças nos campos
@@ -27,15 +31,18 @@ const FormularioSolicitacao = ({ onSalvar }) => {
   };
 
 
+    
   // Função para enviar o formulário
   const handleSubmit = async (e) => {
+
     e.preventDefault();
     try {
-      const response = await solicitacaoService.criarSolicitacao(formData);
+      const rawCpf = cpf.replace(/\D/g, "");
+      await solicitacaoService.criarSolicitacao(formData);
       setErro(null);
       setSuccessMessage(true);
       setFormData({
-        cpf: "",
+        cpf: rawCpf,
         beneficioId: ""
       });
       onSalvar();
@@ -49,8 +56,29 @@ const FormularioSolicitacao = ({ onSalvar }) => {
 
   // Verifica se o formulário está válido
   const isFormValid = () => {
-    return formData.cpf.trim().length === 11 && String(formData.beneficioId).trim() !== "";
+    return formData.cpf.trim().length === 11 && String ( formData.beneficioId).trim() !== ""
   };
+
+
+useEffect(() => {
+  authService
+    .me()
+    .then(({ cpf: raw }) => {
+      const formatted = raw.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+      setCpf(formatted); // para exibir
+      setFormData(prev => ({
+        ...prev,
+        cpf: raw // para enviar
+      }));
+    })
+    .catch(() => {
+      navigate("/home");
+    });
+}, [navigate]);
+
+
+
+
 
 
   return (
@@ -76,21 +104,24 @@ const FormularioSolicitacao = ({ onSalvar }) => {
           <fieldset className="br-fieldset mb-4">
             <legend>Dados da Solicitação</legend>
 
+            <div className="col-6"> 
+              <div className="br-input">
+               <label htmlFor="cpf-disabled">CPF do Solicitante</label>
+                        <input
+                          id="cpf-disabled"
+                          type="text"
+                          value={cpf}        
+                          disabled                      
+                          className="form-control"
+                        /></div>
+            
+                      
 
-            <div className="row">
-              <Input
-                id="cpf"
-                label="CPF do Solicitante"
-                value={formData.cpf}
-                onChange={handleChange}
-                placeholder="000.000.000-00"
-                required
-                maxLength={11}
-              />
 
+          
 
               {/* Campo de seleção estilizado como o Input */}
-              <div className="col-md-7 mb-3">
+              <div className="col-6">
                 <div className="br-input">
                   {/* <label htmlFor="beneficioId">Selecione o Benefício</label> */}
                   <SelectBeneficio

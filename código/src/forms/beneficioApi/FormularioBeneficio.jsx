@@ -71,7 +71,7 @@ try {
   const isFormValid = () => {
     return formData.tipo.trim() !== "" &&
            formData.descricao.trim() !== "" &&
-           parseInt(formData.tempoMinimoMeses) > 0 &&
+           parseInt(formData.tempoMinimoMeses) > -1 &
            parseFloat(formData.percentualBaseMedioContribuicoes) > 0;
   };
 
@@ -91,9 +91,9 @@ try {
                 <legend>Dados do Benefício</legend>
                 <Input id="tipo" label="Tipo de Benefício" value={formData.tipo || ""} onChange={handleChange} placeholder="Auxílio Doença" required />
                 <Input id="descricao" label="Descrição" value={formData.descricao || ""} onChange={handleChange}  placeholder="Concedido em caso de incapacidade temporária"  required />
-                <Input id="tempoMinimoMeses" label="Tempo Mínimo (Meses)" type="number" value={formData.tempoMinimoMeses || ""} onChange={handleChange} placeholder="12" required min="0" />
+                <Input id="tempoMinimoMeses" label="Tempo Mínimo (Meses)" type="number" value={formData.tempoMinimoMeses || ""} onChange={handleChange} placeholder="12"  required min="0" />
                 <Input id="percentualBaseMedioContribuicoes" label="Percentual Base (%)" type="number" step="0.01" value={formData.percentualBaseMedioContribuicoes || ""} onChange={handleChange}  placeholder="81.5"  required min="0.01" />
-              </fieldset>
+                  </fieldset>
 
               <div className="text-end mt-4">
                                 <button 
