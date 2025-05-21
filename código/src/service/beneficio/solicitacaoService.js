@@ -2,7 +2,7 @@
 import axios from "axios";
 
 // URL base da API de solicitação de benefícios
-const API_URL = 'http://localhost:8087/beneficios/solicitacao';
+const API_URL = 'http://192.168.38.13:8087/beneficios/solicitacao';
 
 // Função para criar uma nova solicitação de benefício
 export const criarSolicitacao = (dados) => {

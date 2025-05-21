@@ -1,7 +1,27 @@
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import authService from '../service/login/authService';
 
 const HomeContent = () => {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    authService
+      .me()
+      .then(u => setUser(u))
+      .catch(() => setUser(null));
+  }, []);
+
+  const handleProtectedNavigation = (e, path) => {
+    // se não tiver user ou for admin, bloqueia
+    if (!user || user.role !== "user") {
+      e.preventDefault();
+      // redireciona para login ou para alguma página de erro
+      return navigate('/home');
+    }
+    navigate(path);
+  };
 
   return (
     <main className="container-lg mt-5">
@@ -34,7 +54,7 @@ const HomeContent = () => {
                 <button
                   type="button"
                   className="br-button primary block"
-                  onClick={() => navigate('/contribuicoes')}
+                  onClick={e => handleProtectedNavigation(e, "/contribuicoes")}
                 >
                   Acessar
                 </button>
@@ -56,7 +76,7 @@ const HomeContent = () => {
                 <button
                   type="button"
                   className="br-button primary block"
-                  onClick={() => navigate('/emprestimos/criar')}
+                  onClick={e => handleProtectedNavigation(e, "/emprestimos/criar")}
                 >
                   Acessar
                 </button>
@@ -78,7 +98,7 @@ const HomeContent = () => {
                 <button
                   type="button"
                   className="br-button primary block"
-                  onClick={() => navigate('/solicitacao-beneficios')}
+                  onClick={e => handleProtectedNavigation(e, "/solicitacao-beneficios")}
                 >
                   Acessar
                 </button>

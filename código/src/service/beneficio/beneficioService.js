@@ -1,7 +1,7 @@
 // src/service/beneficio/beneficioService.js
 import axios from "axios";
 
-const API_URL = "http://localhost:8087/beneficios";
+const API_URL = "http://192.168.38.13:8087/beneficios";
 
 const listarBeneficios = async () => {
   const response = await axios.get(API_URL);
