@@ -27,20 +27,27 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    authService
-      .me()
-      .then(u => {
-        setUser(u);
-        if (u.role === "user") {
-          return contribuinteService
-            .pesquisarContribuinte(u.cpf)
-            .then(r => {
-              setContrib(r.data);
-            });
-        }
-      })
-      .catch(() => setUser(null));
-  }, [location.pathname]);
+  // Se estivermos na tela de login, limpa estados e não chama me()
+  if (location.pathname === "/login") {
+    setUser(null);
+    setContrib(null);
+    return;
+  }
+
+  authService
+    .me()
+    .then(u => {
+      setUser(u);
+      if (u.role === "user") {
+        return contribuinteService
+          .pesquisarContribuinte(u.cpf)
+          .then(r => {
+            setContrib(r.data);
+          });
+      }
+    })
+    .catch(() => setUser(null));
+}, [location.pathname]);
 
   const toggleMenu = () => setIsMenuOpen(m => !m);
   const toggleSubmenu = id => setOpenMenus(o => ({ ...o, [id]: !o[id] }));
